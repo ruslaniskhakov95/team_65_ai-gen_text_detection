@@ -7,8 +7,25 @@ https://github.com/liamdugan/human-detection:
 dataset of over 21,000 human annotations of generated text to show that humans can be trained to improve at detection and that certain genres
 influence generative models to make different types of errors.
 
-https://www.kaggle.com/datasets/thedrcat/daigt-v2-train-dataset:
-Essays genered with differents LLM and 25,000 argumentative essays produced by 6th-12th grade students in the United States for 15 prompts
-
 https://studymoose.com/:
 free essays. Then we can generate text ourselves on the same topics.
+
+https://www.kaggle.com/datasets/thedrcat/daigt-v3-train-dataset:
+В этом датасете находятся данные для https://www.kaggle.com/competitions/llm-detect-ai-generated-text. Содержит 65к эссе, сгенерированных разными моделями и людьми, содержит поле модели, что может помочь понять зависит ли наш детектро от конкретной  модели.
+
+https://www.kaggle.com/datasets/radek1/llm-generated-essays:
+Эссе, которые были чисто сгенерены при помощи GPT, просто чтобы увеличить датасет)
+
+https://www.kaggle.com/competitions/human-vs-ai-text-classification-feb2024/data?select=train.csv:
+Самый большой датасет, что я вообще нашел, почти 340 к записей, но минус в том, что сами промпты недоступны, даже id нет, но для обьема данных для обучения думаю может пойти
+
+https://www.kaggle.com/datasets/kevinbnisch/10k-synthetic-persuade-essays-aes?select=10k_chatgpt_essays.json:
+10 к эссе, которые были сгенерены при помощи GPT-4, с оценкой их холистики и весьма интересным промптом...
+
+https://www.kaggle.com/datasets/kingki19/llm-generated-essay-using-palm-from-google-gen-ai:
+Еще один датасет с чисто сгенеренными данными, а так же приложенным скриптом для их генерации. Промпты такие же, как  в соревновании https://www.kaggle.com/competitions/llm-detect-ai-generated-text
+
+https://huggingface.co/datasets/knarasi1/student_and_llm_essays:
+1.5к текстов c парами эссе сгенерировано-человек.
+
+
