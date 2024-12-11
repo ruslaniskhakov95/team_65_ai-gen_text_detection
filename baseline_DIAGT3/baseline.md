@@ -6,20 +6,27 @@
 
 # Вторым этапом было использование  TF-IDF и классификация при помощи log-reg
 Гиперпараметры для данного и последующих моделей выбирались при помощи кросс-валидации, но из-за большого количества данных это происходило очень долго, поэтому в ноутбуках нет кода отбора гиперпараметров, потому что приходилось перезапускать иногда и output не сохранялись:( Основной оценкой служит classification_report, так как показывает множество различных оценок для задачи классификации, но большее внимание шло на оценку f1_score
-Для TF-IDF classification_report на трейне ![image](https://github.com/user-attachments/assets/5f454b2d-b525-44b7-ae1a-e1335c91ffab)
-Для TF-IDF classification_report на тесте ![image](https://github.com/user-attachments/assets/a98f7f30-26de-4155-91ec-4f96181223e0)
+
+Для TF-IDF classification_report на трейне:
+![image](https://github.com/user-attachments/assets/5f454b2d-b525-44b7-ae1a-e1335c91ffab)
+Для TF-IDF classification_report на тесте:
+![image](https://github.com/user-attachments/assets/a98f7f30-26de-4155-91ec-4f96181223e0)
 
 
 # Третий этап Эмбеддинги Word2Vec и LogReg:
 Сначала все текста были разбиты на эмбеддинги, оценивалось тоже при помощи classification_report
-Для W2V на трейне ![image](https://github.com/user-attachments/assets/06bc80fe-a70e-4eee-a283-2843b4f50783)
+Для W2V на трейне:
+![image](https://github.com/user-attachments/assets/06bc80fe-a70e-4eee-a283-2843b4f50783)
 
-Для W2V на тесте ![image](https://github.com/user-attachments/assets/b8e58b7a-41e3-4448-90d7-e217e2572093)
+Для W2V на тесте:
+![image](https://github.com/user-attachments/assets/b8e58b7a-41e3-4448-90d7-e217e2572093)
 
 # Четвертый этап SBERT:
 Все текста были закодированы при помощи трансформера all-MiniLM-L6-v2, очень дого кодировалось, поместил в отдельные файлы закодированные матрицы
-Для SBERT на трейне ![image](https://github.com/user-attachments/assets/84f2a9a0-f7c4-41ee-9389-9ead688c9772)
+Для SBERT на трейне:
+![image](https://github.com/user-attachments/assets/84f2a9a0-f7c4-41ee-9389-9ead688c9772)
 
-Для SBERT на тесте ![image](https://github.com/user-attachments/assets/d8a62422-bc3c-4b60-8afe-027ef7008f9c)
+Для SBERT на тесте:
+![image](https://github.com/user-attachments/assets/d8a62422-bc3c-4b60-8afe-027ef7008f9c)
 
 
