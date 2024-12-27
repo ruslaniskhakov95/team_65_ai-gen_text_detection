@@ -4,6 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 import api_route
+import api_transformers
 from utils import StatusResponse
 
 app = FastAPI(
@@ -14,7 +15,7 @@ app = FastAPI(
 
 
 app.include_router(api_route.router)
-
+app.include_router(api_transformers.router)
 
 @app.exception_handler(RequestValidationError)
 async def http_exception_handler(
