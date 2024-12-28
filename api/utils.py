@@ -2,13 +2,30 @@ from enum import Enum
 import nltk
 from nltk import tokenize
 from nltk.corpus import stopwords
+import os
+import pickle
 from pydantic import BaseModel, ConfigDict
 import string
-from typing import Union
+from typing import Union, List, Optional
 
 nltk.download('punkt_tab')
 nltk.download('stopwords')
 nltk.download('wordnet')
+
+
+current_dir = os.path.dirname(__file__)
+vec_filename = os.path.join(
+    current_dir, '../baseline_OUTFOX/tfidf_vectorizer_uni.pkl'
+)
+with open(vec_filename, 'rb') as vec_file:
+    tfidf_vec = pickle.load(vec_file)
+
+
+model_filename = os.path.join(
+    current_dir, '../baseline_OUTFOX/model_log_tfidf.pkl'
+)
+with open(model_filename, 'rb') as model_file:
+    tfidf_model = pickle.load(model_file)
 
 
 class AuthorPrediction(Enum):
@@ -17,14 +34,60 @@ class AuthorPrediction(Enum):
     HUMAN = 0
 
 
-class PredictSingleRequest(BaseModel):
+class ModelType(Enum):
+
+    logistic = 'logistic'
+    svm = 'svm'
+
+
+class VectorizerType(Enum):
+
+    bow = 'bow'
+    tfidf = 'tfidf'
+
+
+class HyperParams(BaseModel):
+    C: float = 1.0
+    fit_intercept: bool = False
+    random_state: int = None
+    verbose: int = 0
+
+
+class VecParams(BaseModel):
+    max_features: Optional[int] = None
+
+
+class LoadRequest(BaseModel):
+
+    id: str
+
+
+class ModelConfig(LoadRequest):
+    hyperparams: HyperParams
+    model_type: ModelType
+    vec_type: VectorizerType
+    vec_params: VecParams
+
+
+class PredictRequest(BaseModel):
 
     X: str
 
 
-class PredictMultipleRequest(BaseModel):
+class PredictMultipleRequest(PredictRequest):
 
-    X: list[str]
+    X: List[str]
+
+
+class FitRequest(PredictMultipleRequest):
+
+    config: ModelConfig
+    y: List[int]
+
+
+class ApiResponse(BaseModel):
+
+    message: str
 
 
 class PredictResponse(BaseModel):
@@ -40,6 +103,11 @@ class StatusResponse(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={"examples": [{"status": "App healthy"}]}
     )
+
+
+class ModelListResponse(BaseModel):
+    id: str
+    type: str
 
 
 def tokenize_and_clean_text(text):
