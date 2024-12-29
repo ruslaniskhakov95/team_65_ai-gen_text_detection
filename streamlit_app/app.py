@@ -3,6 +3,11 @@ import asyncio
 from PIL import Image
 import streamlit as st
 
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 async def show_main_page():
     image = Image.open('streamlit_app/image/i_am_robot.jpeg')
     st.set_page_config(

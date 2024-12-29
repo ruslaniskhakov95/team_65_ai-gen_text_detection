@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_app.utils import fit_model
+from streamlit_app.utils.utils import fit_model, preprocess_df
 import asyncio
 import pandas as pd
 

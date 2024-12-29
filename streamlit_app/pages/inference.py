@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_app.utils import *
+from streamlit_app.utils.utils import load_model, unload_model, get_list_of_models
 import asyncio
 
 async def process_page():

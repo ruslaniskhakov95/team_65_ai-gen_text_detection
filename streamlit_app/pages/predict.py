@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_app.utils import *
+from streamlit_app.utils.utils import predict_corpus, predict_text
 import asyncio
 
 async def process_page():
