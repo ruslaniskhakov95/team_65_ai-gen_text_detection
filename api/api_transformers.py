@@ -22,7 +22,7 @@ model_path_map = {
     "distillberta":path_distillberta
 }
 
-models = defaultdict(str)
+models: dict = defaultdict(str)
 
 router = APIRouter(prefix='/api/v1/model/transformers')
 

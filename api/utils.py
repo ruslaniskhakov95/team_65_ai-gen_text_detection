@@ -81,6 +81,7 @@ class PredictMultipleRequest(PredictRequest):
 
 class FitRequest(PredictMultipleRequest):
 
+    X: List[str]
     config: ModelConfig
     y: List[int]
 
