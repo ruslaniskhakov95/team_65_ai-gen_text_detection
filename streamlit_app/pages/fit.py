@@ -2,6 +2,9 @@ import streamlit as st
 from streamlit_app.utils.utils import fit_model, preprocess_df
 import asyncio
 import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+
+import plotly.express as px
 
 async def process_page():
     st.header("Обучение модели")
@@ -9,7 +12,7 @@ async def process_page():
     file_markdown()
 
     uploaded_file = st.file_uploader(
-        "Загрузите файл для обучения(CSV):", type=["csv"]
+        "Загрузите файл для обучения(CSV, json):", type=["csv", "jsonl", "json"]
     )
     if uploaded_file:
         df = validate_csv(uploaded_file)
@@ -27,6 +30,40 @@ async def process_page():
                         st.json(result)
                     except Exception as e:
                         st.error(f"Ошибка обучения: {str(e)}")
+
+        # target_column = st.selectbox("Выберите столбец с метками", df.columns)
+        # text_column = st.selectbox("Выберите столбец с текстом", df.columns)
+
+            labels = df['label']
+            texts = df['text']
+
+        # Анализ распределения меток
+            st.subheader("Распределение меток")
+            label_counts = labels.value_counts()
+            fig_label_dist = px.bar(label_counts, x=label_counts.index, y=label_counts.values,
+                                labels={'x': 'Метка', 'y': 'Количество'},
+                                title="Распределение меток")
+            st.plotly_chart(fig_label_dist)
+
+        # Анализ длины текста
+            st.subheader("Распределение длины текста")
+            text_lengths = texts.str.len()
+            length_df = pd.DataFrame({"length": text_lengths, "label": labels})
+            fig_text_len = px.histogram(length_df, x="length", color="label", nbins=50,
+                                        labels={'length': 'Длина текста', 'count': 'Частота', 'label': 'Метка'},
+                                        title="Распределение длины текста с учетом метки")
+            st.plotly_chart(fig_text_len)
+
+            st.subheader("Частотный анализ слов")
+            vectorizer = CountVectorizer(stop_words='english', max_features=50)
+            word_counts = vectorizer.fit_transform(texts).toarray().sum(axis=0)
+            words = vectorizer.get_feature_names_out()
+
+            word_freq = pd.DataFrame({'word': words, 'count': word_counts})
+            fig_word_freq = px.bar(word_freq.sort_values('count', ascending=False), x='word', y='count',
+                                   labels={'word': 'Слово', 'count': 'Частота'},
+                                   title="Частотный анализ слов")
+            st.plotly_chart(fig_word_freq)
 
 def model_hyperparameters(X, y):
     with st.sidebar:
