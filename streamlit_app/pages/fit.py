@@ -1,48 +1,12 @@
-import asyncio
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-import plotly
-from PIL import Image
-import pandas as pd
 import streamlit as st
-from matplotlib.style.core import available
+from streamlit_app.utils import fit_model
+import asyncio
+import pandas as pd
 
-from utils import *
-
-def predict_text_sync(payload):
-    return asyncio.run(predict_text(payload))
-
-def predict_corpus_sync(payload):
-    return asyncio.run(predict_corpus(payload))
-
-
-def get_model_list():
-    return asyncio.run(get_list_of_models())
-
-def load_model_sync(payload):
-    return asyncio.run(load_model(payload))
-
-def unload_model_sync():
-    return asyncio.run(unload_model())
-
-def fit_model_sync(payload):
-    return asyncio.run(fit_model(payload))
-
-def show_main_page():
-    image = Image.open('streamlit/image/i_am_robot.jpeg')
-    st.set_page_config(
-        layout="wide",
-        initial_sidebar_state="auto",
-        page_title="AI Detection",
-        page_icon=image,
-    )
-
-    st.title("Человек или машина?")
-    st.image(image)
-    file_markdown()
-
+async def process_page():
     st.header("Обучение модели")
+
+    file_markdown()
 
     uploaded_file = st.file_uploader(
         "Загрузите файл для обучения(CSV):", type=["csv"]
@@ -50,60 +14,19 @@ def show_main_page():
     if uploaded_file:
         df = validate_csv(uploaded_file)
         if df is not None:
-            X, y = preprocess_df_sync(df)
+            X, y = await preprocess_df(df)
             config = model_hyperparameters([X[0], X[-1]], [y[0], y[-1]])
 
             if st.button("Обучить модель"):
                 if config:
                     st.write("Обучение модели...")
                     try:
-                        result = fit_model_sync(config)
+                        # result = fit_model_sync(config)
+                        result = await fit_model(config)
                         st.success("Модель успешно обучена!")
                         st.json(result)
                     except Exception as e:
                         st.error(f"Ошибка обучения: {str(e)}")
-
-    st.header("Загрузка модели на инференс")
-
-    selected_load_models = st.selectbox("Выберите модель для загрузки на инференс", get_model_list())
-    if selected_load_models:
-        if st.button(f"Загрузить модель {selected_load_models}"):
-            load_model_sync(selected_load_models)
-            st.success(f"Модель {selected_load_models} загружена")
-
-    st.header("Выгрузка модели из инференса")
-
-    if st.button(f"Выгрузить модели"):
-        resp = unload_model_sync()
-        st.success(resp)
-
-    st.header("Предсказание текста")
-
-    text_input = st.text_area("Введите текст для предсказания", height=200)
-
-    if st.button("Предсказать"):
-        if not text_input.strip():
-            st.error("Введите текст для предсказания!")
-        else:
-            resp = predict_text_sync({"X":text_input})
-            st.success(resp['prediction'])
-
-    st.header("Предсказание на корпусе текстов")
-
-    uploaded_file = st.file_uploader("Загрузите текстовый файл (.csv)", type=["csv"])
-    if uploaded_file:
-        texts = pd.read_csv(uploaded_file).tolist()
-        st.write("Тексты для предсказания:")
-        st.write(texts[:5])
-
-        if st.button("Предсказать на корпусе текстов"):
-            resp = predict_corpus_sync({"X": texts})
-            st.success(resp)
-
-
-def preprocess_df_sync(df):
-    return asyncio.run(preprocess_df(df))
-
 
 def model_hyperparameters(X, y):
     with st.sidebar:
@@ -141,9 +64,6 @@ def model_hyperparameters(X, y):
             st.success("Конфигурация сохранена!")
 
         return st.session_state.get("config", None)
-
-
-
 def file_markdown():
     required_columns = pd.DataFrame({
         "Column Name": ["text", "label"],
@@ -158,7 +78,6 @@ def file_markdown():
     st.markdown("""
     - **Дополнительные столбцы** могут быть добавлены произвольно, например: `model`, `prompt` и т.д.
     """)
-
 
 def validate_csv(file):
     try:
@@ -175,6 +94,5 @@ def validate_csv(file):
         st.error(f"Не удалось загрузить файл: {e}")
         return None
 
-
 if __name__ == "__main__":
-    show_main_page()
+    asyncio.run(process_page())

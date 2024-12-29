@@ -1,5 +1,10 @@
 import aiohttp
 
+predict_response = {
+    0: "human",
+    1: "AI"
+}
+
 async def get_list_of_models():
     async with aiohttp.ClientSession() as session:
         url = "http://127.0.0.1:8000/api/v1/model/list"
