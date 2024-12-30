@@ -12,10 +12,15 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 from streamlit_app.utils.utils import fit_model
 
-nltk.download("punkt")
-nltk.download("stopwords")
-nltk.download("wordnet")
-nltk.download("averaged_perceptron_tagger")
+
+@st.cache_resource
+def download_nltk_resources():
+    nltk.download("punkt")
+    nltk.download("stopwords")
+    nltk.download("wordnet")
+    nltk.download("averaged_perceptron_tagger")
+
+download_nltk_resources()
 
 
 async def process_page():
@@ -31,7 +36,6 @@ async def process_page():
         if df is not None:
             X = df["text"]
             y = df["label"].tolist()
-            # cleaned_texts = []
             X = X.apply(
                 lambda text: " ".join(
                     tokenize_and_clean_text(
