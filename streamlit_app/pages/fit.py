@@ -1,13 +1,21 @@
 import asyncio
+import string
 
+import nltk
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from nltk import tokenize
+from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 
-from streamlit_app.utils.utils import (fit_model, lemmatize, preprocess_df,
-                                       tokenize_and_clean_text)
+from streamlit_app.utils.utils import fit_model
+
+nltk.download("punkt")
+nltk.download("stopwords")
+nltk.download("wordnet")
+nltk.download("averaged_perceptron_tagger")
 
 
 async def process_page():
@@ -21,7 +29,6 @@ async def process_page():
     if uploaded_file:
         df = validate_csv(uploaded_file)
         if df is not None:
-            # X, y = await preprocess_df(df)
             X = df["text"]
             y = df["label"].tolist()
             # cleaned_texts = []
@@ -208,6 +215,34 @@ def validate_csv(file):
     except Exception as e:
         st.error(f"Не удалось загрузить файл: {e}")
         return None
+
+
+def tokenize_and_clean_text(text):
+    tokens = tokenize.word_tokenize(text)
+    stop_words = set(stopwords.words("english"))
+    punct_chars = (
+        string.punctuation
+        + r"'s"
+        + r"'t"
+        + r"\n't"
+        + r"'ll"
+        + r"'re"
+        + '""'
+        + "..."
+        + "'"
+        + "``"
+    )
+    filtered_tokens = [
+        word.lower()
+        for word in tokens
+        if word not in stop_words and word not in punct_chars and r"'" not in word
+    ]
+    return filtered_tokens
+
+
+def lemmatize(tokens):
+    lemmatizer = nltk.stem.WordNetLemmatizer()
+    return [lemmatizer.lemmatize(token) for token in tokens]
 
 
 if __name__ == "__main__":
