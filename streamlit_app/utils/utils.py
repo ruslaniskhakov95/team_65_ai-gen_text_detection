@@ -1,9 +1,10 @@
 import aiohttp
 
 predict_response = {
-    0: "human",
-    1: "AI"
+    0: "chatGPT",
+    1: "human",
 }
+
 
 async def get_list_of_models():
     async with aiohttp.ClientSession() as session:
@@ -13,9 +14,12 @@ async def get_list_of_models():
                 if response.status == 200:
                     return await response.json()
                 else:
-                    return {"error": f"Ошибка: {response.status}, {await response.text()}"}
+                    return {
+                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                    }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
+
 
 async def fit_model(payload):
     async with aiohttp.ClientSession() as session:
@@ -26,9 +30,12 @@ async def fit_model(payload):
                 if response.status == 200:
                     return response.status, resp
                 else:
-                    return response.status, {"error": f"Ошибка: {response.status}, {resp}"}
+                    return response.status, {
+                        "error": f"Ошибка: {response.status}, {resp}"
+                    }
         except Exception as e:
             return 500, {"error": f"Ошибка соединения: {str(e)}"}
+
 
 async def load_model(payload):
     async with aiohttp.ClientSession() as session:
@@ -39,9 +46,12 @@ async def load_model(payload):
                 if response.status == 200:
                     return response.status, resp
                 else:
-                    return response.status, {"error": f"Ошибка: {response.status}, {resp}"}
+                    return response.status, {
+                        "error": f"Ошибка: {response.status}, {resp}"
+                    }
         except Exception as e:
             return 500, {"error": f"Ошибка соединения: {str(e)}"}
+
 
 async def unload_model():
     async with aiohttp.ClientSession() as session:
@@ -52,9 +62,12 @@ async def unload_model():
                 if response.status == 200:
                     return response.status, resp
                 else:
-                    return response.status, {"error": f"Ошибка: {response.status}, {resp}"}
+                    return response.status, {
+                        "error": f"Ошибка: {response.status}, {resp}"
+                    }
         except Exception as e:
             return 500, {"error": f"Ошибка соединения: {str(e)}"}
+
 
 async def predict_text(payload):
     async with aiohttp.ClientSession() as session:
@@ -65,7 +78,9 @@ async def predict_text(payload):
                 if response.status == 200:
                     return response.status, resp
                 else:
-                    return response.status, {"error": f"Ошибка: {response.status}, {resp}"}
+                    return response.status, {
+                        "error": f"Ошибка: {response.status}, {resp}"
+                    }
         except Exception as e:
             return 500, {"error": f"Ошибка соединения: {str(e)}"}
 
@@ -79,12 +94,8 @@ async def predict_corpus(payload):
                 if response.status == 200:
                     return response.status, resp
                 else:
-                    return response.status, {"error": f"Ошибка: {response.status}, {resp}"}
+                    return response.status, {
+                        "error": f"Ошибка: {response.status}, {resp}"
+                    }
         except Exception as e:
             return 500, {"error": f"Ошибка соединения: {str(e)}"}
-
-
-async def preprocess_df(df):
-    X = df['text'].tolist()
-    y = df['label'].tolist()
-    return X, y
