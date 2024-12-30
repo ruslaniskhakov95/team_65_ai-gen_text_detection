@@ -1,10 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from util_transformers import (LoadResponse, TransformerRequest, HTTPValidationError, 
                             LoadRequest, UnloadRequest, UnloadResponse, ModelListResponse, PredictionTransformer,
-                            PredictionTransformerProbability)
+                            PredictionTransformerProbability, logger_setup)
 import os
 from http import HTTPStatus
+import traceback
 
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, pipeline
 from collections import defaultdict
@@ -27,6 +28,8 @@ models: dict = defaultdict(str)
 
 router = APIRouter(prefix='/api/v1/model/transformers')
 
+logger = logger_setup(name='transformers_logger', log_file='logs_transformers/log.log')
+
 @router.post("/load",
              tags=['transformer detector'],
              summary= 'Load',
@@ -35,12 +38,20 @@ router = APIRouter(prefix='/api/v1/model/transformers')
                           200: {'model': LoadResponse, 'description': 'Successful Response'}},
              status_code=HTTPStatus.OK)
 async def load(request:LoadRequest):
-    models[request.id] = pipeline('text-classification', 
-                                  model= AutoModelForSequenceClassification.from_pretrained(model_path_map[request.id]), 
-                                  tokenizer=AutoTokenizer.from_pretrained(model_path_map[request.id]), 
-                                  truncation=True, 
-                                  max_length=512, 
-                                  top_k=4)
+    logger.info(f"Trying to load model with ID {request.id}")
+    try:
+        models[request.id] = pipeline('text-classification', 
+                                    model= AutoModelForSequenceClassification.from_pretrained(model_path_map[request.id]), 
+                                    tokenizer=AutoTokenizer.from_pretrained(model_path_map[request.id]), 
+                                    truncation=True, 
+                                    max_length=512, 
+                                    top_k=4)
+        logger.info(f"Deleted model with ID {request.id}")
+    except KeyError as e:
+        logger.error("Tried to load a model that does not exist: %s, Here is the trace: %s", request.id, traceback.format_exc())
+        raise HTTPException(status_code=422, detail=f"Requested model doesn't exist. You can use one \
+                            of the following: {list(model_path_map.keys())}")
+
     return [LoadResponse(message=f"Model '{request.id}' loaded")]
 
 @router.post("/unload",
@@ -52,7 +63,15 @@ async def load(request:LoadRequest):
                           200: {'model': UnloadResponse, 'description': 'Successful Response'}},
              status_code=HTTPStatus.OK)
 async def unload(request:UnloadRequest):
-    del models[request.id]
+    logger.info(f"Trying to unloadmodel with ID {request.id}")
+    try:
+        del models[request.id]
+    except KeyError as e:
+        logger.error("Tried to unload a model that does not exist: %s, Here is the trace: %s",
+                      request.id, traceback.format_exc())
+        raise HTTPException(status_code=422, detail=f"Requested model is not loaded. The currently \
+                            loaded models are: {list(models.keys())}")
+    
     return [UnloadResponse(message=f'unloaded model {request.id}')]
 
 @router.get("/loaded_models",
@@ -61,6 +80,7 @@ async def unload(request:UnloadRequest):
              description= 'Возвращает список всех обученных моделей.',
              responses = {200: {'model': ModelListResponse, 'description': 'Successful Response'}})
 async def list_models():
+    logger.info('A request to list all of the currently loaded models')
     return [ModelListResponse(models=[{'models':list(models.keys())}])]
 
 @router.get("/list_models",
@@ -69,19 +89,32 @@ async def list_models():
              description= 'Возвращает список всех обученных моделей.',
              responses = {200: {'model': ModelListResponse, 'description': 'Successful Response'}})
 async def list_models():
+    logger.info('A request to list all of the models on the disk')
     return [ModelListResponse(models=[{'models':list(model_path_map.keys())}])]
 
 
 @router.post("/predict", response_model=PredictionTransformer, status_code=HTTPStatus.OK)
 async def PredictTransformer(request: TransformerRequest):
-    predictions = models[request.model_type](request.X)
-    for i, item in enumerate(predictions):
-        predictions[i] = max(item, key=lambda x: x['score'])['label']
+    logger.info('Making predictions')
+    try:
+        predictions = models[request.model_type](request.X)
+        for i, item in enumerate(predictions):
+            predictions[i] = max(item, key=lambda x: x['score'])['label']
+    except TypeError:
+        logger.error(f"The user tried to make a prediction with a model \
+                      that is not loaded or misspelled the ID (%s)! Here is the trace: %s", request.id, traceback.format_exc())
+        raise  HTTPException(status_code=422, detail=f"Requested model is not loaded. The currently \
+                            loaded models are: {list(models.keys())}")
     return PredictionTransformer(predictions=predictions)
 
 @router.post("/predict_probability", response_model=PredictionTransformerProbability, status_code=HTTPStatus.OK)
 async def PredictTransformer(request: TransformerRequest):
-    predictions = models[request.model_type](request.X)
-    print(predictions)
+    try:
+        predictions = models[request.model_type](request.X)
+    except TypeError:
+        logger.error(f"The user tried to make a prediction with a model \
+                      that is not loaded or misspelled the ID (%s)! Here is the trace: %s", request.id, traceback.format_exc())
+        raise  HTTPException(status_code=422, detail=f"Requested model is not loaded or misspelled. The currently \
+                            loaded models are: {list(models.keys())}")
     return PredictionTransformerProbability(predictions=predictions)
 
