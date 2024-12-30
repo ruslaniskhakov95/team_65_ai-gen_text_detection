@@ -81,7 +81,6 @@ class PredictMultipleRequest(PredictRequest):
 
 class FitRequest(PredictMultipleRequest):
 
-    X: List[str]
     config: ModelConfig
     y: List[int]
 
@@ -89,6 +88,15 @@ class FitRequest(PredictMultipleRequest):
 class ApiResponse(BaseModel):
 
     message: str
+
+
+class FitResponse(ApiResponse):
+
+    train_sizes: List
+    train_scores_mean: List
+    test_scores_mean: List
+    train_scores_std: List
+    test_scores_std: List
 
 
 class PredictResponse(BaseModel):

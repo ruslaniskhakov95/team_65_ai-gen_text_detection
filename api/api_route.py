@@ -1,24 +1,27 @@
+from concurrent.futures import ThreadPoolExecutor
 from fastapi import APIRouter, HTTPException
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import learning_curve
 from sklearn.svm import SVC
 
 from utils import (
     PredictRequest, LoadRequest, PredictMultipleRequest, PredictResponse,
     FitRequest, ApiResponse, tokenize_and_clean_text, lemmatize,
-    tfidf_model, tfidf_vec, ModelListResponse
+    ModelListResponse, FitResponse
 )
 
 
-router = APIRouter(prefix='/api/v1/model')
-models = {
-    'default': [tfidf_vec, tfidf_model, 'logistic']
-}
+models = {}
 active_model = 'default'
 
 
-@router.post("/fit_corpus", response_model=ApiResponse)
+router = APIRouter(prefix='/api/v1/model')
+executor = ThreadPoolExecutor(max_workers=1)
+
+
+@router.post("/fit_corpus", response_model=FitResponse)
 async def fit_new_model(request: FitRequest):
     '''Train new model'''
 
@@ -31,11 +34,6 @@ async def fit_new_model(request: FitRequest):
     vec_params = config.vec_params.dict()
     X = request.X
     y = np.array(request.y)
-    cleaned_texts = []
-    for text in X:
-        cleaned_texts.append(' '.join(
-            lemmatize(tokenize_and_clean_text(text))
-        ))
 
     if model_type == 'logistic':
         model = LogisticRegression(**params)
@@ -46,12 +44,35 @@ async def fit_new_model(request: FitRequest):
     elif vec_type == 'tfidf':
         vec = TfidfVectorizer(**vec_params)
 
-    X_vec = vec.fit_transform(cleaned_texts)
-    model.fit(X_vec, y)
-    models[model_id] = [vec, model, model_type]
+    X_vec = vec.fit_transform(X)
 
-    return ApiResponse(
-        message=f'Model {model_id} successfully trained! Vec: {vec_type}'
+    train_sizes, train_scores, test_scores = learning_curve(
+        model, X_vec, y, n_jobs=-1,
+        train_sizes=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    )
+
+    mean_train_scores = train_scores.mean(axis=1)
+    mean_test_scores = test_scores.mean(axis=1)
+    std_train_scores = train_scores.std(axis=1)
+    std_test_scores = test_scores.std(axis=1)
+
+    def train():
+        model.fit(X_vec, y)
+        models[model_id] = [vec, model, model_type]
+
+    try:
+        future = executor.submit(train)
+        future.result(timeout=10)
+    except TimeoutError:
+        raise HTTPException(status_code=408, detail='Train timeout')
+
+    return FitResponse(
+        message=f'Model {model_id} successfully trained! Vec: {vec_type}',
+        train_sizes=train_sizes.tolist(),
+        train_scores_mean=mean_train_scores.tolist(),
+        test_scores_mean=mean_test_scores.tolist(),
+        train_scores_std=std_train_scores.tolist(),
+        test_scores_std=std_test_scores.tolist()
     )
 
 
