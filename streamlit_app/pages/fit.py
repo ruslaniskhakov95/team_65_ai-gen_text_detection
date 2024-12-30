@@ -15,7 +15,7 @@ from streamlit_app.utils.utils import fit_model
 
 @st.cache_resource
 def download_nltk_resources():
-    nltk.download("punkt")
+    nltk.download("punkt_tab")
     nltk.download("stopwords")
     nltk.download("wordnet")
     nltk.download("averaged_perceptron_tagger")
