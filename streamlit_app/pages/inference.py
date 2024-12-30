@@ -1,11 +1,17 @@
-import streamlit as st
-from streamlit_app.utils.utils import load_model, unload_model, get_list_of_models
 import asyncio
+
+import streamlit as st
+
+from streamlit_app.utils.utils import (get_list_of_models, load_model,
+                                       unload_model)
+
 
 async def process_page():
     st.header("Загрузка модели на инференс")
 
-    selected_load_models = st.selectbox("Выберите модель для загрузки на инференс", await get_list_of_models())
+    selected_load_models = st.selectbox(
+        "Выберите модель для загрузки на инференс", await get_list_of_models()
+    )
     if selected_load_models:
         if st.button(f"Загрузить модель {selected_load_models}"):
             # load_model_sync(selected_load_models)
@@ -18,6 +24,7 @@ async def process_page():
         # resp = unload_model_sync()
         resp = await unload_model()
         st.success(resp)
+
 
 if __name__ == "__main__":
     asyncio.run(process_page())
