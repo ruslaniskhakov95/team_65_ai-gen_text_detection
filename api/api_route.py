@@ -127,8 +127,8 @@ async def predict_model(request: PredictRequest):
 
     vec, model = models[active_model][0], models[active_model][1]
     text_vec = vec.transform(text_list)
-    pred = model.predict(text_vec).tolist()
-    return PredictResponse(prediction=pred)
+    pred = model.predict_proba(text_vec).tolist()
+    return PredictResponse(probability=pred)
 
 
 @router.post("/predict_corpus", response_model=PredictResponse)
@@ -147,5 +147,5 @@ async def predict_model_corpus(request: PredictMultipleRequest):
         ))
     vec, model = models[active_model][0], models[active_model][1]
     text_vec = vec.transform(cleaned_texts)
-    pred = model.predict(text_vec).tolist()
-    return PredictResponse(prediction=pred)
+    pred = model.predict_proba(text_vec).tolist()
+    return PredictResponse(probability=pred)

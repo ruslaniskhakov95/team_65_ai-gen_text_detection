@@ -7,6 +7,7 @@ import pickle
 import uvicorn
 
 from api_route import router, models
+import api_transformers
 from utils import StatusResponse
 
 
@@ -43,6 +44,7 @@ app = FastAPI(
 )
 
 app.include_router(router)
+app.include_router(api_transformers.router)
 
 
 @app.exception_handler(RequestValidationError)

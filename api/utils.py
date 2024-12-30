@@ -101,9 +101,10 @@ class FitResponse(ApiResponse):
 
 class PredictResponse(BaseModel):
 
-    prediction: Union[
-        list[list[int, AuthorPrediction]], list[int, AuthorPrediction]
-    ]
+    # prediction: Union[
+    #     list[list[int, AuthorPrediction]], list[int, AuthorPrediction]
+    # ]
+    probability: list[list[float]]
 
 
 class StatusResponse(BaseModel):
