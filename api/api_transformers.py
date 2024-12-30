@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
 from util_transformers import (LoadResponse, TransformerRequest, HTTPValidationError, 
-                            LoadRequest, UnloadRequest, UnloadResponse, ModelListResponse, PredictionTransformer)
+                            LoadRequest, UnloadRequest, UnloadResponse, ModelListResponse, PredictionTransformer,
+                            PredictionTransformerProbability)
 import os
 from http import HTTPStatus
 
@@ -54,14 +55,21 @@ async def unload(request:UnloadRequest):
     del models[request.id]
     return [UnloadResponse(message=f'unloaded model {request.id}')]
 
-@router.get("/list_models",
+@router.get("/loaded_models",
              tags=['trainer'],
-             summary= 'List Models',
+             summary= 'List Loaded Models',
              description= 'Возвращает список всех обученных моделей.',
-             operation_id='list_models_api_v1_models_list_models_get',
              responses = {200: {'model': ModelListResponse, 'description': 'Successful Response'}})
 async def list_models():
     return [ModelListResponse(models=[{'models':list(models.keys())}])]
+
+@router.get("/list_models",
+             tags=['trainer'],
+             summary= 'List All Models that are Stored on the Disk',
+             description= 'Возвращает список всех обученных моделей.',
+             responses = {200: {'model': ModelListResponse, 'description': 'Successful Response'}})
+async def list_models():
+    return [ModelListResponse(models=[{'models':list(model_path_map.keys())}])]
 
 
 @router.post("/predict", response_model=PredictionTransformer, status_code=HTTPStatus.OK)
@@ -70,3 +78,10 @@ async def PredictTransformer(request: TransformerRequest):
     for i, item in enumerate(predictions):
         predictions[i] = max(item, key=lambda x: x['score'])['label']
     return PredictionTransformer(predictions=predictions)
+
+@router.post("/predict_probability", response_model=PredictionTransformerProbability, status_code=HTTPStatus.OK)
+async def PredictTransformer(request: TransformerRequest):
+    predictions = models[request.model_type](request.X)
+    print(predictions)
+    return PredictionTransformerProbability(predictions=predictions)
+

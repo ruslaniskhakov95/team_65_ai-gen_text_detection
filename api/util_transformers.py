@@ -76,3 +76,17 @@ class PredictionTransformer(BaseModel):
                 ]
             }
         }
+
+class PredictionTransformerProbability(BaseModel):
+    predictions: List[List[Dict[str, Union[float,str]]]]
+
+    # class Config:
+    #     json_schema_extra = {
+    #         "example":
+    #         {
+    #             "predictions": [
+    #                 'machine-polished',
+    #                 'llm'
+    #             ]
+    #         }
+    #     }
