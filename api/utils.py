@@ -90,6 +90,15 @@ class ApiResponse(BaseModel):
     message: str
 
 
+class FitResponse(ApiResponse):
+
+    train_sizes: List
+    train_scores_mean: List
+    test_scores_mean: List
+    train_scores_std: List
+    test_scores_std: List
+
+
 class PredictResponse(BaseModel):
 
     prediction: Union[
