@@ -11,7 +11,7 @@ label_map = {
 }
 
 
-API_URL = 'https://2b19-83-237-24-130.ngrok-free.app'
+API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
 
 
 async def load_model(payload):
