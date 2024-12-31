@@ -6,7 +6,7 @@ import os
 import pickle
 from pydantic import BaseModel, ConfigDict
 import string
-from typing import Union, List, Optional
+from typing import List, Optional
 
 nltk.download('punkt_tab')
 nltk.download('stopwords')
@@ -101,9 +101,6 @@ class FitResponse(ApiResponse):
 
 class PredictResponse(BaseModel):
 
-    # prediction: Union[
-    #     list[list[int, AuthorPrediction]], list[int, AuthorPrediction]
-    # ]
     probability: list[list[float]]
 
 
@@ -123,10 +120,9 @@ class ModelListResponse(BaseModel):
 def tokenize_and_clean_text(text):
     tokens = tokenize.word_tokenize(text)
     stop_words = set(stopwords.words('english'))
-    punct_chars = string.punctuation + "'s" + '""' + '...' + "''" + '``'
+    punct_chars = string.punctuation + r"'s" + r"'t" + r"\n't" + r"'ll" + r"'re" + '""' + '...' + "\'" + '``'
     filtered_tokens = [
-        word.lower() for word in tokens if word not in stop_words
-        and word not in punct_chars
+        word.lower() for word in tokens if word not in stop_words and word not in punct_chars and r"'" not in word
     ]
     return filtered_tokens
 

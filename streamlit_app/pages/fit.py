@@ -20,6 +20,7 @@ def download_nltk_resources():
     nltk.download("wordnet")
     nltk.download("averaged_perceptron_tagger")
 
+
 download_nltk_resources()
 
 

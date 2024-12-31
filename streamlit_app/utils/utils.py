@@ -5,10 +5,12 @@ predict_response = {
     1: "human",
 }
 
+API_URL = 'https://2b19-83-237-24-130.ngrok-free.app'
+
 
 async def get_list_of_models():
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/list"
+        url = API_URL + "/api/v1/model/list"
         try:
             async with session.get(url) as response:
                 if response.status == 200:
@@ -23,7 +25,7 @@ async def get_list_of_models():
 
 async def fit_model(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/fit_corpus"
+        url = API_URL + "/api/v1/model/fit_corpus"
         try:
             async with session.post(url, json=payload) as response:
                 resp = await response.json()
@@ -40,7 +42,7 @@ async def fit_model(payload):
 
 async def load_model(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/load"
+        url = API_URL + "/api/v1/model/load"
         try:
             async with session.post(url, json=payload) as response:
                 resp = await response.json()
@@ -56,7 +58,7 @@ async def load_model(payload):
 
 async def unload_model():
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/unload"
+        url = API_URL + "/api/v1/model/unload"
         try:
             async with session.post(url) as response:
                 resp = await response.json()
@@ -72,7 +74,7 @@ async def unload_model():
 
 async def predict_text(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/predict_text"
+        url = API_URL + "/api/v1/model/predict_text"
         try:
             async with session.post(url, json=payload) as response:
                 resp = await response.json()
@@ -88,7 +90,7 @@ async def predict_text(payload):
 
 async def predict_corpus(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/predict_corpus"
+        url = API_URL + "/api/v1/model/predict_corpus"
         try:
             async with session.post(url, json=payload) as response:
                 resp = await response.json()
