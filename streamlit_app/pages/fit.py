@@ -52,6 +52,7 @@ async def process_page():
                     try:
                         _, result = await fit_model(config)
                         st.json(config)
+                        st.json(result)
                         st.success(result["message"])
                         train_sizes = result["train_sizes"]
                         train_scores_mean = result["train_scores_mean"]
