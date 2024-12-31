@@ -11,9 +11,12 @@ label_map = {
 }
 
 
+API_URL = 'https://2b19-83-237-24-130.ngrok-free.app'
+
+
 async def load_model(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/load"
+        url = API_URL + "/api/v1/model/transformers/load"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
@@ -21,7 +24,8 @@ async def load_model(payload):
                     return [r for r in resp]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
@@ -29,7 +33,7 @@ async def load_model(payload):
 
 async def unload_model(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/unload"
+        url = API_URL + "/api/v1/model/transformers/unload"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
@@ -37,7 +41,8 @@ async def unload_model(payload):
                     return [r for r in resp]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
@@ -45,7 +50,7 @@ async def unload_model(payload):
 
 async def get_list_of_models():
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/list_models"
+        url = API_URL + "/api/v1/model/transformers/list_models"
         try:
             async with session.get(url) as response:
                 if response.status == 200:
@@ -53,7 +58,8 @@ async def get_list_of_models():
                     return [r for r in resp]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
@@ -61,7 +67,7 @@ async def get_list_of_models():
 
 async def get_list_of_loaded_models():
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/loaded_models"
+        url = API_URL + "/api/v1/model/transformers/loaded_models"
         try:
             async with session.get(url) as response:
                 if response.status == 200:
@@ -69,7 +75,8 @@ async def get_list_of_loaded_models():
                     return resp[0]["models"][0]["models"]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
@@ -77,7 +84,7 @@ async def get_list_of_loaded_models():
 
 async def predict(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/predict"
+        url = API_URL + "/api/v1/model/transformers/predict"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
@@ -85,7 +92,8 @@ async def predict(payload):
                     return [r for r in resp]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
