@@ -27,6 +27,7 @@ async def fit_model(payload):
         try:
             async with session.post(url, json=payload) as response:
                 resp = await response.json()
+                print(resp)
                 if response.status == 200:
                     return response.status, resp
                 else:

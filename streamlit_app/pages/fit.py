@@ -45,12 +45,13 @@ async def process_page():
             ).tolist()
 
             config = model_hyperparameters(X, y)
-
+            st.json(config)
             if st.button("Обучить модель"):
                 if config:
                     st.write("Обучение модели...")
                     try:
                         _, result = await fit_model(config)
+                        st.json(config)
                         st.success(result["message"])
                         train_sizes = result["train_sizes"]
                         train_scores_mean = result["train_scores_mean"]
