@@ -20,6 +20,7 @@ def download_nltk_resources():
     nltk.download("wordnet")
     nltk.download("averaged_perceptron_tagger")
 
+
 download_nltk_resources()
 
 
@@ -29,7 +30,8 @@ async def process_page():
     file_markdown()
 
     uploaded_file = st.file_uploader(
-        "Загрузите файл для обучения(CSV, json):", type=["csv", "jsonl", "json"]
+        "Загрузите файл для обучения(CSV, json):",
+        type=["csv", "jsonl", "json"]
     )
     if uploaded_file:
         df = validate_csv(uploaded_file)
@@ -69,7 +71,8 @@ async def process_page():
                                 name="Точность на обучении (средняя)",
                                 line=dict(color="blue"),
                                 error_y=dict(
-                                    type="data", array=train_scores_std, visible=True
+                                    type="data",
+                                    array=train_scores_std, visible=True
                                 ),
                             )
                         )
@@ -81,7 +84,8 @@ async def process_page():
                                 name="Точность на тесте (средняя)",
                                 line=dict(color="green"),
                                 error_y=dict(
-                                    type="data", array=test_scores_std, visible=True
+                                    type="data",
+                                    array=test_scores_std, visible=True
                                 ),
                             )
                         )
@@ -119,7 +123,9 @@ async def process_page():
                 x="length",
                 color="label",
                 nbins=50,
-                labels={"length": "Длина текста", "count": "Частота", "label": "Метка"},
+                labels={"length": "Длина текста",
+                        "count": "Частота",
+                        "label": "Метка"},
                 title="Распределение длины текста с учетом метки",
             )
             st.plotly_chart(fig_text_len)
@@ -151,14 +157,18 @@ def model_hyperparameters(X, y):
             step=0.01,
         )
         fit_intercept = st.checkbox("Fit Intercept", value=False)
-        random_state = st.number_input("Random State", min_value=0, value=0, step=1)
+        random_state = st.number_input("Random State",
+                                       min_value=0, value=0, step=1)
         verbose = st.selectbox("Verbose", options=[0, 1, 2], index=0)
 
-        model_type = st.selectbox("Model type", options=["logistic", "svm"], index=0)
+        model_type = st.selectbox("Model type",
+                                  options=["logistic", "svm"], index=0)
 
         st.header("Vectorization parameters")
-        vec_type = st.selectbox("Vectorization type", options=["bow", "tfidf"], index=0)
-        max_features = st.number_input("Max Features", min_value=1, value=1, step=1)
+        vec_type = st.selectbox("Vectorization type",
+                                options=["bow", "tfidf"], index=0)
+        max_features = st.number_input("Max Features",
+                                       min_value=1, value=1, step=1)
 
         if st.button("Save configuration"):
             st.session_state.config = {
@@ -199,7 +209,9 @@ def file_markdown():
 
     st.markdown(
         """
-    - **Дополнительные столбцы** могут быть добавлены произвольно, например: `model`, `prompt` и т.д.
+    - **Дополнительные столбцы** могут
+     быть добавлены произвольно,
+      например: `model`, `prompt` и т.д.
     """
     )
 
@@ -213,7 +225,8 @@ def validate_csv(file):
         required = {"text", "label"}
         if not required.issubset(df.columns):
             missing = required - set(df.columns)
-            st.error(f"Ошибка: Отсутствуют обязательные столбцы: {', '.join(missing)}")
+            st.error(f"Ошибка: Отсутствуют обязательные столбцы:"
+                     f" {', '.join(missing)}")
             return None
         st.success("Файл успешно загружен!")
         st.write("Предпросмотр данных:", df.head())
@@ -239,9 +252,9 @@ def tokenize_and_clean_text(text):
         + "``"
     )
     filtered_tokens = [
-        word.lower()
-        for word in tokens
-        if word not in stop_words and word not in punct_chars and r"'" not in word
+        w.lower()
+        for w in tokens
+        if w not in stop_words and w not in punct_chars and r"'" not in w
     ]
     return filtered_tokens
 

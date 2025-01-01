@@ -21,7 +21,8 @@ async def process_page():
     st.header("Выгрузка модели трансформера из инференса")
 
     selected_unload_models = st.selectbox(
-        "Выберите модель для выгрузки из инференса", await get_list_of_loaded_models()
+        "Выберите модель для выгрузки из инференса",
+        await get_list_of_loaded_models()
     )
     if st.button(f"Выгрузить модели"):
         resp = await unload_model(selected_unload_models["id"])

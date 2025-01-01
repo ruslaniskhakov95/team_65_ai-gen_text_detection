@@ -15,7 +15,8 @@ async def get_list_of_models():
                     return await response.json()
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
