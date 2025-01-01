@@ -21,7 +21,8 @@ async def load_model(payload):
                     return [r for r in resp]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
@@ -37,7 +38,8 @@ async def unload_model(payload):
                     return [r for r in resp]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
@@ -50,10 +52,11 @@ async def get_list_of_models():
             async with session.get(url) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return [r for r in resp]
+                    return resp[0]["models"][0]["models"]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
@@ -69,7 +72,8 @@ async def get_list_of_loaded_models():
                     return resp[0]["models"][0]["models"]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status},"
+                                 f" {await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}
@@ -85,7 +89,8 @@ async def predict(payload):
                     return [r for r in resp]
                 else:
                     return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except Exception as e:
             return {"error": f"Ошибка соединения: {str(e)}"}

@@ -48,16 +48,15 @@ async def process_page():
 
         if st.button("Предсказать на корпусе текстов"):
             resp = await predict_corpus({"X": texts})
-            print(resp)
 
-            prediction_data = []
+            pred_data = []
             for i in range(len(texts)):
-                prediction_data.append({})
-                for key, value in predict_response.items():
-                    prediction_data[i].update({value: resp[1]["probability"][i][key]})
+                pred_data.append({})
+                for k, v in predict_response.items():
+                    pred_data[i].update({v: resp[1]["probability"][i][k]})
 
             prediction_df = pd.DataFrame(
-                prediction_data, index=[i for i in range(len(texts))]
+                pred_data, index=[i for i in range(len(texts))]
             )
 
             st.write(prediction_df)
