@@ -10,10 +10,11 @@ label_map = {
     6: "gpt-4",
 }
 
+API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
 
 async def load_model(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/load"
+        url = API_URL + "/api/v1/model/transformers/load"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
@@ -29,7 +30,7 @@ async def load_model(payload):
 
 async def unload_model(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/unload"
+        url = API_URL + "/api/v1/model/transformers/unload"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
@@ -45,7 +46,7 @@ async def unload_model(payload):
 
 async def get_list_of_models():
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/list_models"
+        url = API_URL + "/api/v1/model/transformers/list_models"
         try:
             async with session.get(url) as response:
                 if response.status == 200:
@@ -61,7 +62,7 @@ async def get_list_of_models():
 
 async def get_list_of_loaded_models():
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/loaded_models"
+        url = API_URL + "/api/v1/model/transformers/loaded_models"
         try:
             async with session.get(url) as response:
                 if response.status == 200:
@@ -77,7 +78,7 @@ async def get_list_of_loaded_models():
 
 async def predict(payload):
     async with aiohttp.ClientSession() as session:
-        url = "http://127.0.0.1:8000/api/v1/model/transformers/predict"
+        url = API_URL + "/api/v1/model/transformers/predict"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
