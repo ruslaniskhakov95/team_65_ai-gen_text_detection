@@ -1,3 +1,4 @@
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import APIRouter, HTTPException
 import numpy as np
@@ -12,6 +13,7 @@ from utils import (
     ModelListResponse, FitResponse
 )
 
+from util_transformers import logger_setup
 
 models = {}
 active_model = 'default'
@@ -20,11 +22,14 @@ active_model = 'default'
 router = APIRouter(prefix='/api/v1/model')
 executor = ThreadPoolExecutor(max_workers=1)
 
+logger = logger_setup(
+    name='basic_logger', log_file='logs_basic/log.log'
+)
+
 
 @router.post("/fit_corpus", response_model=FitResponse)
 async def fit_new_model(request: FitRequest):
     '''Train new model'''
-
     global models
     config = request.config
     model_type = config.model_type.value
@@ -34,6 +39,7 @@ async def fit_new_model(request: FitRequest):
     vec_params = config.vec_params.dict()
     X = request.X
     y = np.array(request.y)
+    logger.info(f"Trying to fit model of type {model_type} and vectorizer {vec_type}")
 
     if model_type == 'logistic':
         model = LogisticRegression(**params)
@@ -63,7 +69,13 @@ async def fit_new_model(request: FitRequest):
     try:
         future = executor.submit(train)
         future.result(timeout=10)
+        logger.info(f'Successfully trained model with id {model_id}')
     except TimeoutError:
+        logger.error(
+            "Tried to fit model with id: %s, but got a Timeout error.\
+            Here is the trace: %s",
+            model_id, traceback.format_exc()
+        )
         raise HTTPException(status_code=408, detail='Train timeout')
 
     return FitResponse(
@@ -81,12 +93,19 @@ async def load_model(request: LoadRequest):
     global active_model
     global models
     model_id = request.id
+    logger.info("Trying to load model with id: %s", model_id)
     if models.get(model_id):
         active_model = model_id
     else:
+        logger.error(
+            "Tried to load a model that does not exist: %s, \
+            Here is the trace: %s",
+            request.id, traceback.format_exc()
+        )
         raise HTTPException(
             status_code=404, detail="Requested model doesn't exist"
         )
+    logger.info("Loaded model with id: %s", model_id)
     return ApiResponse(message=f'Model {model_id} successfully loaded')
 
 
@@ -94,10 +113,13 @@ async def load_model(request: LoadRequest):
 async def unload_model():
     global active_model
     global models
+    logger.info(f"Trying to unload the current active model")
     if not active_model:
+        logger.error("There is no active model! Here is the traceback: %s", traceback.format_exc())
         raise HTTPException(
             status_code=404, detail="There's no active loaded model"
         )
+    logger.info(f"Successfully unloaded the active model")
     temp = active_model
     active_model = None
     return ApiResponse(message=f'Model {temp} unloaded!')
@@ -105,6 +127,7 @@ async def unload_model():
 
 @router.get("/list", response_model=list[ModelListResponse])
 async def list_models():
+    logger.info('A request to list all of the models on the disk')
     return [
         ModelListResponse(
             id=key, type=value[2]
@@ -115,8 +138,9 @@ async def list_models():
 @router.post("/predict_text", response_model=PredictResponse)
 async def predict_model(request: PredictRequest):
     '''Prediction on a single text'''
-
+    logger.info("Trying to make a prediction with the current active model.")
     if not active_model:
+        logger.error("There is no active model! Here is the traceback: %s", traceback.format_exc())
         raise HTTPException(
             status_code=404, detail='No active model, choose one!'
         )
@@ -128,14 +152,16 @@ async def predict_model(request: PredictRequest):
     vec, model = models[active_model][0], models[active_model][1]
     text_vec = vec.transform(text_list)
     pred = model.predict_proba(text_vec).tolist()
+    logger.info("Successfully made the prediction.")
     return PredictResponse(probability=pred)
 
 
 @router.post("/predict_corpus", response_model=PredictResponse)
 async def predict_model_corpus(request: PredictMultipleRequest):
     '''Prediction on a text corpus'''
-
+    logger.info("Trying to make a corpus prediction with the current active model.")
     if not active_model:
+        logger.error("There is no active model! Here is the traceback: %s", traceback.format_exc())
         raise HTTPException(
             status_code=404, detail='No active model, choose one!'
         )
@@ -148,4 +174,5 @@ async def predict_model_corpus(request: PredictMultipleRequest):
     vec, model = models[active_model][0], models[active_model][1]
     text_vec = vec.transform(cleaned_texts)
     pred = model.predict_proba(text_vec).tolist()
+    logger.info("Successfully made the corpus prediction.")
     return PredictResponse(probability=pred)
