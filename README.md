@@ -30,7 +30,7 @@ Use docker-compose.yml
 git clone git@github.com:ruslaniskhakov95/team_65_ai-gen_text_detection.git
 cd team_65_ai-gen_text_detection
 ```
-Change the docker compose config file, in order to take images from docker hub instead of building.
+Run docker compose file with --build flag
 
 ```bash
 docker compose up --build
