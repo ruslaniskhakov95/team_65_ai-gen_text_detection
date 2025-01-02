@@ -18,8 +18,10 @@ Use docker-compose.yml
 
 
 ## Get transformer weights
+```
 git lfs install
 git clone https://huggingface.co/spaces/raj-tomar001/LLM-DetectAIve
+```
 Make sure that the path to model weights is correct in api/.env
 ## Stack
 - Python 3.11

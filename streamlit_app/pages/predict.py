@@ -2,13 +2,14 @@ import asyncio
 import pandas as pd
 import streamlit as st
 from streamlit_app.utils.utils import predict_corpus, predict_response, predict_text
-
+from pages import logger
 
 async def process_page():
     """
     Main function to render the Streamlit page and handle text prediction tasks.
     - Includes single-text prediction and batch text prediction on uploaded files.
     """
+    logger.info('Loading the predict page')
     st.header("Text Prediction")
 
     text_input = st.text_area("Enter text for prediction", height=200)
@@ -17,6 +18,7 @@ async def process_page():
         if not text_input.strip():
             st.error("Please enter text for prediction!")
         else:
+            logger.info("Making a prediction with basic model.")
             resp = await predict_text({"X": text_input})
 
             prediction_data = {}
@@ -39,6 +41,7 @@ async def process_page():
         "Upload a file for prediction (.csv, .jsonl)", type=["csv", "jsonl"]
     )
     if uploaded_file:
+        logger.info("Making a basic prediction with a file.")
         texts = pd.DataFrame()
         if uploaded_file.name.endswith(".csv"):
             texts = pd.read_csv(uploaded_file)["text"].tolist()
