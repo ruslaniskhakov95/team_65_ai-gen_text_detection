@@ -15,14 +15,14 @@ nltk.download('wordnet')
 
 current_dir = os.path.dirname(__file__)
 vec_filename = os.path.join(
-    current_dir, '../baseline_OUTFOX/tfidf_vectorizer_uni.pkl'
+    current_dir, './baseline_OUTFOX/tfidf_vectorizer_uni.pkl'
 )
 with open(vec_filename, 'rb') as vec_file:
     tfidf_vec = pickle.load(vec_file)
 
 
 model_filename = os.path.join(
-    current_dir, '../baseline_OUTFOX/model_log_tfidf.pkl'
+    current_dir, './baseline_OUTFOX/model_log_tfidf.pkl'
 )
 with open(model_filename, 'rb') as model_file:
     tfidf_model = pickle.load(model_file)
