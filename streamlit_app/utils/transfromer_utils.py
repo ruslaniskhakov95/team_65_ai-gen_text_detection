@@ -11,7 +11,7 @@ label_map = {
     6: "gpt-4",
 }
 
-API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
+API_URL = 'http://127.0.0.1:8000'
 
 
 async def load_model(payload):
@@ -79,7 +79,7 @@ async def get_list_of_models():
             async with session.get(url) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return list(resp)
+                    return resp[0]["models"][0]["models"]
                 return {
                         "error": f"Ошибка: {response.status}, {await response.text()}"
                     }
