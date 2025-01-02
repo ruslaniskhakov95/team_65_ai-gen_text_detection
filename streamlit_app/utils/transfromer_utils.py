@@ -1,3 +1,4 @@
+import json
 import aiohttp
 
 label_map = {
@@ -12,55 +13,87 @@ label_map = {
 
 API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
 
+
 async def load_model(payload):
+    """
+        Load a model using the provided payload.
+
+        Args:
+            payload (dict): The data used to load the model.
+
+        Returns:
+            tuple: the response from the API.
+    """
     async with aiohttp.ClientSession() as session:
         url = API_URL + "/api/v1/model/transformers/load"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return [r for r in resp]
-                else:
-                    return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                    return list(resp)
+                return {
+                        "error": f"Error: {response.status}, {await response.text()}"
                     }
-        except Exception as e:
-            return {"error": f"Ошибка соединения: {str(e)}"}
+        except aiohttp.ClientError as e:
+            return 500, {"error": f"HTTP error: {str(e)}"}
+        except json.JSONDecodeError as e:
+            return 500, {"error": f"JSON decode error: {str(e)}"}
 
 
 async def unload_model(payload):
+    """
+        Unload the model from the API.
+
+        Args:
+            payload (dict): The data used to unload the model.
+
+        Returns:
+            tuple: the response from the API.
+    """
     async with aiohttp.ClientSession() as session:
         url = API_URL + "/api/v1/model/transformers/unload"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return [r for r in resp]
-                else:
-                    return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                    return list(resp)
+                return {
+                        "error": f"Error: {response.status}, {await response.text()}"
                     }
-        except Exception as e:
-            return {"error": f"Ошибка соединения: {str(e)}"}
+        except aiohttp.ClientError as e:
+            return 500, {"error": f"HTTP error: {str(e)}"}
+        except json.JSONDecodeError as e:
+            return 500, {"error": f"JSON decode error: {str(e)}"}
 
 
 async def get_list_of_models():
+    """
+        Fetch the list of available models from the API.
+
+        Returns:
+            dict: A dictionary with the models or an error message.
+    """
     async with aiohttp.ClientSession() as session:
         url = API_URL + "/api/v1/model/transformers/list_models"
         try:
             async with session.get(url) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return [r for r in resp]
-                else:
-                    return {
+                    return list(resp)
+                return {
                         "error": f"Ошибка: {response.status}, {await response.text()}"
                     }
-        except Exception as e:
-            return {"error": f"Ошибка соединения: {str(e)}"}
+        except aiohttp.ClientError as e:
+            return 500, {"error": f"HTTP error: {str(e)}"}
 
 
 async def get_list_of_loaded_models():
+    """
+        Fetch the list of loaded models from the API.
+
+        Returns:
+            dict: A dictionary with the models or an error message.
+    """
     async with aiohttp.ClientSession() as session:
         url = API_URL + "/api/v1/model/transformers/loaded_models"
         try:
@@ -68,25 +101,34 @@ async def get_list_of_loaded_models():
                 if response.status == 200:
                     resp = await response.json()
                     return resp[0]["models"][0]["models"]
-                else:
-                    return {
+                return {
                         "error": f"Ошибка: {response.status}, {await response.text()}"
                     }
-        except Exception as e:
-            return {"error": f"Ошибка соединения: {str(e)}"}
+        except aiohttp.ClientError as e:
+            return 500, {"error": f"HTTP error: {str(e)}"}
 
 
 async def predict(payload):
+    """
+        Predict using a corpus of data.
+
+        Args:
+            payload (dict): The input corpus for prediction.
+
+        Returns:
+            tuple: the prediction result.
+    """
     async with aiohttp.ClientSession() as session:
         url = API_URL + "/api/v1/model/transformers/predict"
         try:
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return [r for r in resp]
-                else:
-                    return {
+                    return list(resp)
+                return {
                         "error": f"Ошибка: {response.status}, {await response.text()}"
                     }
-        except Exception as e:
-            return {"error": f"Ошибка соединения: {str(e)}"}
+        except aiohttp.ClientError as e:
+            return 500, {"error": f"HTTP error: {str(e)}"}
+        except json.JSONDecodeError as e:
+            return 500, {"error": f"JSON decode error: {str(e)}"}

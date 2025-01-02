@@ -2,32 +2,38 @@ import asyncio
 
 import streamlit as st
 
-from streamlit_app.utils.transfromer_utils import (get_list_of_loaded_models,
-                                                   get_list_of_models,
-                                                   load_model, unload_model)
+from streamlit_app.utils.transfromer_utils import (
+    get_list_of_loaded_models,
+    get_list_of_models,
+    load_model,
+    unload_model
+)
 
 
 async def process_page():
-    st.header("Загрузка модели трансформера на инференс")
+    """
+    Main function to handle model inference operations.
+    This function provides a user interface to load and unload transformer models for inference using Streamlit.
+    """
+    st.header("Load Transformer Model for Inference")
 
     selected_load_models = st.selectbox(
-        "Выберите модель для загрузки на инференс", await get_list_of_models()
+        "Select a model to load for inference", await get_list_of_models()
     )
     if selected_load_models:
-        if st.button(f"Загрузить модель {selected_load_models}"):
+        if st.button(f"Load model {selected_load_models}"):
             await load_model(selected_load_models["id"])
-            st.success(f"Модель {selected_load_models['id']} загружена")
+            st.success(f"Model {selected_load_models['id']} has been loaded")
 
-    st.header("Выгрузка модели трансформера из инференса")
+    st.header("Unload Transformer Model from Inference")
 
     selected_unload_models = st.selectbox(
-        "Выберите модель для выгрузки из инференса",
+        'Selecct a model to unload from inference',
         await get_list_of_loaded_models()
     )
-    if st.button(f"Выгрузить модели"):
+    if st.button(f"Unload model {selected_unload_models}"):
         resp = await unload_model(selected_unload_models["id"])
         st.success(resp)
-
 
 if __name__ == "__main__":
     asyncio.run(process_page())
