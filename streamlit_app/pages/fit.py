@@ -9,6 +9,7 @@ import streamlit as st
 from nltk import tokenize
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
+import time
 
 from streamlit_app.utils.utils import fit_model
 
@@ -53,7 +54,8 @@ async def process_page():
                 if config:
                     st.write("Training the model...")
                     try:
-                        _, result = fit_model(config)
+                        _, result = await fit_model(config)
+                        time.sleep(10)
                         st.success(result["message"])
                         train_sizes = result["train_sizes"]
                         train_scores_mean = result["train_scores_mean"]
