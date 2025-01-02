@@ -1,5 +1,7 @@
 import json
+import os
 import aiohttp
+from dotenv import load_dotenv
 
 label_map = {
     0: "chatGPT",
@@ -11,7 +13,11 @@ label_map = {
     6: "gpt-4",
 }
 
-API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
+
+load_dotenv()
+
+
+API_URL = os.getenv("API_URL")
 
 
 async def load_model(payload):
