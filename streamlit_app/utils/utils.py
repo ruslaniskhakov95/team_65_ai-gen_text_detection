@@ -7,7 +7,7 @@ predict_response = {
     1: "human",
 }
 
-API_URL = 'http://127.0.0.1:8000'
+API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
 
 
 async def get_list_of_models():

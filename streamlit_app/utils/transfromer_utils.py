@@ -12,6 +12,8 @@ label_map = {
 }
 
 API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
+
+
 async def load_model(payload):
     """
         Load a model using the provided payload.
@@ -25,12 +27,13 @@ async def load_model(payload):
     async with aiohttp.ClientSession() as session:
         url = API_URL + "/api/v1/model/transformers/load"
         try:
-            async with session.post(url, json={'id':payload}) as response:
+            async with session.post(url, json={'id': payload}) as response:
                 if response.status == 200:
                     resp = await response.json()
                     return list(resp)
                 return {
-                        "error": f"Error: {response.status}, {await response.text()}"
+                        "error": f"Error: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
@@ -56,7 +59,8 @@ async def unload_model(payload):
                     resp = await response.json()
                     return list(resp)
                 return {
-                        "error": f"Error: {response.status}, {await response.text()}"
+                        "error": f"Error: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
@@ -79,7 +83,8 @@ async def get_list_of_models():
                     resp = await response.json()
                     return resp[0]["models"][0]["models"]
                 return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
@@ -100,7 +105,8 @@ async def get_list_of_loaded_models():
                     resp = await response.json()
                     return resp[0]["models"][0]["models"]
                 return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
@@ -124,13 +130,15 @@ async def predict(payload):
                     resp = await response.json()
                     return resp
                 return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
         except json.JSONDecodeError as e:
             return 500, {"error": f"JSON decode error: {str(e)}"}
-        
+
+
 async def predict_probability(payload):
     """
         Predict using a corpus of data.
@@ -149,10 +157,10 @@ async def predict_probability(payload):
                     resp = await response.json()
                     return resp
                 return {
-                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                        "error": f"Ошибка: {response.status}, "
+                                 f"{await response.text()}"
                     }
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
         except json.JSONDecodeError as e:
             return 500, {"error": f"JSON decode error: {str(e)}"}
-
