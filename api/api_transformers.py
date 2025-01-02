@@ -193,7 +193,7 @@ async def PredictTransformer(request: TransformerRequest):
             detail=f"Requested model is not loaded or misspelled. \
             The currently loaded models are: {list(models.keys())}"
         )
-    
+
     for item in predictions[0]:
         item['label'] = TEXT_CLASS_MAPPING[item['label']]
     return PredictionTransformerProbability(predictions=predictions)
