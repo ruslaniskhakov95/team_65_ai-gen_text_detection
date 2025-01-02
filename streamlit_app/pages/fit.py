@@ -1,5 +1,6 @@
 import asyncio
 import string
+import traceback
 
 import nltk
 import pandas as pd
@@ -9,9 +10,8 @@ import streamlit as st
 from nltk import tokenize
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
-
 from streamlit_app.utils.utils import fit_model
-
+from pages import logger
 
 @st.cache_resource
 def download_nltk_resources():
@@ -26,6 +26,7 @@ download_nltk_resources()
 
 
 async def process_page():
+    logger.info('Processing the Fit Page')
     """Main function for processing the page."""
     st.header("Model Training")
 
@@ -52,6 +53,7 @@ async def process_page():
             if st.button("Train Model"):
                 if config:
                     st.write("Training the model...")
+                    logger.info('Trying to train model with id:%s', config['config']['id'])
                     try:
                         _, result = await fit_model(config)
                         st.success(result["message"])
@@ -98,6 +100,7 @@ async def process_page():
                         st.plotly_chart(fig)
 
                     except ValueError as e:
+                        logger.error('Unable to train the model. Here is the trace: %s', traceback.format_exc())
                         st.error(f"Value error: {e}")
 
             display_eda(df['label'], df['text'])
@@ -105,7 +108,7 @@ async def process_page():
 
 def display_eda(labels, texts):
     """Display EDA."""
-
+    logger.info("Making the EDA for the incoming data.")
     st.subheader("Label Distribution")
     label_counts = labels.value_counts()
     fig_label_dist = px.bar(
@@ -150,6 +153,7 @@ def model_hyperparameters(X, y):
     """Define and save model hyperparameters."""
     with st.sidebar:
         st.header("Model Hyperparameters")
+        model_id = st.text_input("Give your model an ID", max_chars=10)
         C = st.slider(
             "C (Regularization Strength)",
             min_value=0.01,
@@ -175,7 +179,7 @@ def model_hyperparameters(X, y):
             st.session_state.config = {
                 "X": X,
                 "config": {
-                    "id": "string1",
+                    "id": model_id,
                     "hyperparams": {
                         "C": C,
                         "fit_intercept": fit_intercept,
@@ -219,6 +223,7 @@ def display_file_requirements():
 
 def validate_csv(file):
     """Validate the uploaded CSV or JSONL file."""
+    logger.info("Validating the incoming data file.")
     try:
         df = pd.DataFrame()
         if file.name.endswith(".csv"):
@@ -228,12 +233,14 @@ def validate_csv(file):
         required = {"text", "label"}
         if not required.issubset(df.columns):
             missing = required - set(df.columns)
+            logger.error(f"The file is missing required columns{', '.join(missing)}")
             st.error(f"Error: Missing required columns: {', '.join(missing)}")
             return None
         st.success("File successfully loaded!")
         st.write("Data Preview:", df.head())
         return df
     except FileNotFoundError as e:
+        logger.error("Unable to locate the file! Here is the trace: %s", traceback.format_exc())
         st.error(f"File not found: {e}")
         return None
 

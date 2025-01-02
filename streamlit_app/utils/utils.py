@@ -11,8 +11,8 @@ predict_response = {
 load_dotenv()
 
 
-API_URL = os.getenv("API_URL")
-
+# API_URL = os.getenv("API_URL")
+API_URL = "http://127.0.0.1:8000"
 
 async def get_list_of_models():
     """

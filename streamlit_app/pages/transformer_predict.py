@@ -3,6 +3,7 @@ import asyncio
 import streamlit as st
 
 from streamlit_app.utils.transfromer_utils import predict, predict_probability, get_list_of_loaded_models
+from pages import logger
 import pandas as pd
 
 
@@ -17,7 +18,7 @@ async def process_page():
     - Performs batch predictions asynchronously and displays the results.
     """
     st.header("Batch Text Prediction")
-
+    logger.info('Loading the transformer predict page')
     st.markdown(
         """
         - The file must contain a column named `text`.
@@ -28,6 +29,7 @@ async def process_page():
         "Upload a file for prediction (.csv)", type=["csv"]
     )
     if uploaded_file:
+        logger.info('Making a transformer prediction')
         texts = pd.read_csv(uploaded_file)["text"].tolist()
         st.write("Texts for prediction:")
         st.write(texts[:2])
