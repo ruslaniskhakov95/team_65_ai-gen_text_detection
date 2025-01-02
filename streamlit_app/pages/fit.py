@@ -55,7 +55,7 @@ async def process_page():
                     st.write("Training the model...")
                     try:
                         _, result = await fit_model(config)
-                        time.sleep(20)
+                        print(result)
                         st.success(result["message"])
                         train_sizes = result["train_sizes"]
                         train_scores_mean = result["train_scores_mean"]
