@@ -22,8 +22,8 @@ async def process_page():
     )
     if selected_load_models:
         if st.button(f"Load model {selected_load_models}"):
-            await load_model(selected_load_models["id"])
-            st.success(f"Model {selected_load_models['id']} has been loaded")
+            await load_model(selected_load_models)
+            st.success(f"Model {selected_load_models} has been loaded")
 
     st.header("Unload Transformer Model from Inference")
 

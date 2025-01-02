@@ -13,7 +13,6 @@ label_map = {
 
 API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
 
-
 async def load_model(payload):
     """
         Load a model using the provided payload.
@@ -27,7 +26,7 @@ async def load_model(payload):
     async with aiohttp.ClientSession() as session:
         url = API_URL + "/api/v1/model/transformers/load"
         try:
-            async with session.post(url, json=payload) as response:
+            async with session.post(url, json={'id':payload}) as response:
                 if response.status == 200:
                     resp = await response.json()
                     return list(resp)
@@ -79,7 +78,7 @@ async def get_list_of_models():
             async with session.get(url) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return list(resp)
+                    return list(resp[0]['models'][0]['models'])
                 return {
                         "error": f"Ошибка: {response.status}, {await response.text()}"
                     }
@@ -124,7 +123,7 @@ async def predict(payload):
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return list(resp)
+                    return resp
                 return {
                         "error": f"Ошибка: {response.status}, {await response.text()}"
                     }
@@ -132,3 +131,31 @@ async def predict(payload):
             return 500, {"error": f"HTTP error: {str(e)}"}
         except json.JSONDecodeError as e:
             return 500, {"error": f"JSON decode error: {str(e)}"}
+        
+async def predict_probability(payload):
+    """
+        Predict using a corpus of data.
+
+        Args:
+            payload (dict): The input corpus for prediction.
+
+        Returns:
+            tuple: the prediction result.
+    """
+    async with aiohttp.ClientSession() as session:
+        url = API_URL + "/api/v1/model/transformers/predict_probability"
+        try:
+            async with session.post(url, json=payload) as response:
+                if response.status == 200:
+                    resp = await response.json()
+                    print('========')
+                    print(resp)
+                    return resp
+                return {
+                        "error": f"Ошибка: {response.status}, {await response.text()}"
+                    }
+        except aiohttp.ClientError as e:
+            return 500, {"error": f"HTTP error: {str(e)}"}
+        except json.JSONDecodeError as e:
+            return 500, {"error": f"JSON decode error: {str(e)}"}
+

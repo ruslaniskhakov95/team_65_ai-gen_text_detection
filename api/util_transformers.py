@@ -35,7 +35,8 @@ class TransformerRequest(BaseModel):
         json_schema={
             "example":
             {
-                "X": ['As an AI language model', 'I wonder if there is a God.']
+                "X": ['As an AI language model', 'I wonder if there is a God.'],
+                "model_type": 'roberta'
             }
         }
 

@@ -36,6 +36,13 @@ logger = logger_setup(
     name='transformers_logger', log_file='logs_transformers/log.log'
 )
 
+TEXT_CLASS_MAPPING = {
+    'LABEL_2': 'Machine-Generated',
+    'LABEL_0': 'Human-Written',
+    'LABEL_3': 'Machine-Written, Machine-Humanized',
+    'LABEL_1': 'Human-Written, Machine-Polished'
+}
+
 
 @router.post("/load",
              tags=['transformer detector'],
@@ -137,7 +144,7 @@ async def list_models():
                 'model': ModelListResponse,
                 'description': 'Successful Response'
             }})
-async def list_models():
+async def list_models_stored():
     logger.info('A request to list all of the models on the disk')
     return [ModelListResponse(models=[{'models': list(
         model_path_map.keys()
@@ -164,6 +171,7 @@ async def PredictTransformer(request: TransformerRequest):
             status_code=422, detail=f"Requested model is not loaded. \
             The currently loaded models are: {list(models.keys())}"
         )
+    predictions = list(map(TEXT_CLASS_MAPPING.get, predictions))
     return PredictionTransformer(predictions=predictions)
 
 
@@ -185,4 +193,7 @@ async def PredictTransformer(request: TransformerRequest):
             detail=f"Requested model is not loaded or misspelled. \
             The currently loaded models are: {list(models.keys())}"
         )
+    
+    for item in predictions[0]:
+        item['label'] = TEXT_CLASS_MAPPING[item['label']]
     return PredictionTransformerProbability(predictions=predictions)
