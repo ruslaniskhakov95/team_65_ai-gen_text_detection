@@ -1,6 +1,7 @@
 # Project Documentation
 
 ## Project Structure
+
 The project repository is organized as follows:
 
 ```
@@ -28,6 +29,7 @@ team_65_ai-gen_text_detection/
 │   │   └── transformer_utils.py        # Helper functions for API requests related to transformers
 │   └── app.py                          # Main Streamlit application file
 │
+├── .development.env                    # Example of .env on your server
 ├── README.md                           # Project official documentation
 ├── requirements.txt                    # Project dependencies
 └── report.md                           # Detailed project documentation
@@ -38,9 +40,11 @@ team_65_ai-gen_text_detection/
 ## Functional Overview
 
 ### API
+
 The `api` folder contains all necessary components for serving machine learning models via FastAPI. It supports both standard and transformer-based models.
 
 #### Key Files:
+
 - **`main.py`**: Entry point for the FastAPI server.
 - **`api_route.py`**: Handles routing for standard model APIs, including endpoints for loading, training, and inference.
 - **`api_transformers.py`**: Handles routing for transformer-based model APIs.
@@ -48,14 +52,17 @@ The `api` folder contains all necessary components for serving machine learning 
 - **`util_transformers.py`**: Contains helper functions specific to transformer models.
 
 #### Features:
+
 - Load and unload models for inference.
 - Train models with user-provided datasets.
 - Perform inference and predictions using both standard and transformer-based models.
 
 ### Streamlit Application
+
 The `streamlit_app` folder contains the frontend application built with Streamlit. It allows users to interact with the models, perform analysis, and visualize results.
 
 #### Key Components:
+
 - **`pages/`**: Modularized pages for different functionalities:
   - `fit.py`: Facilitates uploading datasets, performing exploratory data analysis (EDA), and training models.
   - `inference.py`: Provides controls for managing model loading and unloading during inference.
@@ -66,6 +73,7 @@ The `streamlit_app` folder contains the frontend application built with Streamli
 - **`utils/`**: Utility scripts to streamline API interaction from the Streamlit frontend.
 
 #### Features:
+
 - Upload and analyze training datasets.
 - Train models and visualize their performance.
 - Load/unload models and perform real-time predictions.
@@ -73,9 +81,10 @@ The `streamlit_app` folder contains the frontend application built with Streamli
 
 ---
 
-## Usage Instructions
+## User Instructions
 
 ### Prerequisites
+
 1. Install Python (version 3.8 or higher recommended).
 2. Install the required dependencies using:
    ```bash
@@ -83,6 +92,7 @@ The `streamlit_app` folder contains the frontend application built with Streamli
    ```
 
 ### Running the API
+
 1. Navigate to the `api` folder.
 2. Start the FastAPI server:
    ```bash
@@ -91,6 +101,7 @@ The `streamlit_app` folder contains the frontend application built with Streamli
 3. The API documentation will be available at `http://127.0.0.1:8000/api/openapi`.
 
 ### Running the Streamlit Application
+
 1. Navigate to the `streamlit_app` folder.
 2. Start the Streamlit app:
    ```bash
@@ -98,9 +109,21 @@ The `streamlit_app` folder contains the frontend application built with Streamli
    ```
 3. Open the provided URL in your browser to interact with the application.
 
-### Basic Workflow
-1. **Upload Data**: Use the `Fit` page in Streamlit to upload datasets and perform EDA.
-2. **Train Models**: Configure model training parameters and train directly from the `Fit` page.
-3. **Inference**: Load models for inference on the `Inference` or `Transformer Inference` pages.
-4. **Prediction**: Use the `Predict` or `Transformer Predict` pages to input data and get predictions.
+### Using the `.env` File
 
+- The `.development.env` file contains environment variables needed to configure the application.
+- Copy this file to `.env` and modify the values as per your setup.
+- Key variables include:
+  - `ROBERTA_PATH`: Path to the RoBERTa model.
+  - `DEBERTA_PATH`: Path to the DeBERTa model.
+  - `DISTILLBERTA_PATH`: Path to the DistilBERTa model.
+  - `API_URL`: URL for connecting to the FastAPI server.
+
+Ensure the `.env` file is placed in the root directory of the project before running the application.
+
+### Workflow Overview
+
+1. **Upload Data**: Use the `Fit` page in Streamlit to upload datasets and perform basic analysis.
+2. **Train Models**: Configure training parameters and initiate training from the `Fit` page.
+3. **Inference**: Load trained models for inference using the `Inference` or `Transformer Inference` pages.
+4. **Make Predictions**: Use the `Predict` or `Transformer Predict` pages to input data and obtain predictions.
