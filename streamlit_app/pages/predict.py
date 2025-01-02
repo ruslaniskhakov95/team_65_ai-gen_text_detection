@@ -1,52 +1,54 @@
 import asyncio
-
 import pandas as pd
 import streamlit as st
-
-from streamlit_app.utils.utils import (predict_corpus, predict_response,
-                                       predict_text)
+from streamlit_app.utils.utils import predict_corpus, predict_response, predict_text
 
 
 async def process_page():
-    st.header("Предсказание текста")
+    """
+    Main function to render the Streamlit page and handle text prediction tasks.
+    - Includes single-text prediction and batch text prediction on uploaded files.
+    """
+    st.header("Text Prediction")
 
-    text_input = st.text_area("Введите текст для предсказания", height=200)
+    text_input = st.text_area("Enter text for prediction", height=200)
 
-    if st.button("Предсказать"):
+    if st.button("Predict"):
         if not text_input.strip():
-            st.error("Введите текст для предсказания!")
+            st.error("Please enter text for prediction!")
         else:
-            # resp = predict_text_sync({"X":text_input})
             resp = await predict_text({"X": text_input})
 
             prediction_data = {}
             for key, value in predict_response.items():
                 prediction_data.update({value: resp[1]["probability"][0][key]})
-            print(prediction_data)
+
             prediction_df = pd.DataFrame(prediction_data, index=[0])
 
             st.write(prediction_df)
 
-    st.header("Предсказание на корпусе текстов")
+    st.header("Batch Text Prediction")
 
     st.markdown(
         """
-            - Файл обязательно должен содержать столбец `text`
-            """
+        - The file must contain a column named `text`.
+        """
     )
 
     uploaded_file = st.file_uploader(
-        "Загрузите файл для предсказания (.csv, .jsonl)", type=["csv", "jsonl"]
+        "Upload a file for prediction (.csv, .jsonl)", type=["csv", "jsonl"]
     )
     if uploaded_file:
+        texts = pd.DataFrame()
         if uploaded_file.name.endswith(".csv"):
             texts = pd.read_csv(uploaded_file)["text"].tolist()
         elif uploaded_file.name.endswith(".jsonl"):
             texts = pd.read_json(uploaded_file, lines=True)["text"].tolist()
-        st.write("Тексты для предсказания:")
-        st.write(texts[:5])
 
-        if st.button("Предсказать на корпусе текстов"):
+        st.write("Texts for prediction:")
+        st.write(texts[:5])  # Display a sample of the texts
+
+        if st.button("Predict on Batch of Texts"):
             resp = await predict_corpus({"X": texts})
 
             pred_data = []
@@ -56,7 +58,7 @@ async def process_page():
                     pred_data[i].update({v: resp[1]["probability"][i][k]})
 
             prediction_df = pd.DataFrame(
-                pred_data, index=[i for i in range(len(texts))]
+                pred_data, index=list(range(len(texts)))
             )
 
             st.write(prediction_df)

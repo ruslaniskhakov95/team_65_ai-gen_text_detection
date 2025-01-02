@@ -15,6 +15,7 @@ from streamlit_app.utils.utils import fit_model
 
 @st.cache_resource
 def download_nltk_resources():
+    """Download necessary NLTK resources."""
     nltk.download("punkt_tab")
     nltk.download("stopwords")
     nltk.download("wordnet")
@@ -25,12 +26,13 @@ download_nltk_resources()
 
 
 async def process_page():
-    st.header("Обучение модели")
+    """Main function for processing the page."""
+    st.header("Model Training")
 
-    file_markdown()
+    display_file_requirements()
 
     uploaded_file = st.file_uploader(
-        "Загрузите файл для обучения(CSV, json):",
+        "Upload a file for training (CSV, json):",
         type=["csv", "jsonl", "json"]
     )
     if uploaded_file:
@@ -48,9 +50,9 @@ async def process_page():
 
             config = model_hyperparameters(X, y)
             st.json(config)
-            if st.button("Обучить модель"):
+            if st.button("Train Model"):
                 if config:
-                    st.write("Обучение модели...")
+                    st.write("Training the model...")
                     try:
                         _, result = await fit_model(config)
                         st.json(config)
@@ -68,12 +70,12 @@ async def process_page():
                                 x=train_sizes,
                                 y=train_scores_mean,
                                 mode="lines+markers",
-                                name="Точность на обучении (средняя)",
-                                line=dict(color="blue"),
-                                error_y=dict(
-                                    type="data",
-                                    array=train_scores_std, visible=True
-                                ),
+                                name="Training Accuracy (Mean)",
+                                line={"color": 'blue'},
+                                error_y={
+                                    "type": "data",
+                                    "array": train_scores_std, "visible": True
+                                },
                             )
                         )
                         fig.add_trace(
@@ -81,72 +83,74 @@ async def process_page():
                                 x=train_sizes,
                                 y=test_scores_mean,
                                 mode="lines+markers",
-                                name="Точность на тесте (средняя)",
-                                line=dict(color="green"),
-                                error_y=dict(
-                                    type="data",
-                                    array=test_scores_std, visible=True
-                                ),
+                                name="Test Accuracy (Mean)",
+                                line={"color": 'green'},
+                                error_y={
+                                    "type": "data",
+                                    "array": test_scores_std, "visible": True
+                                },
                             )
                         )
                         fig.update_layout(
-                            title="Кривые обучения",
-                            xaxis_title="Размер обучающей выборки",
-                            yaxis_title="Точность",
-                            xaxis=dict(tickmode="linear"),
-                            yaxis=dict(range=[0, 1]),
+                            title="Learning Curves",
+                            xaxis_title="Training Set Size",
+                            yaxis_title="Accuracy",
+                            xaxis={"tickmode": "linear"},
+                            yaxis={"range": [0, 1]},
                         )
                         st.plotly_chart(fig)
 
-                    except Exception as e:
-                        st.error(f"Ошибка обучения: {str(e)}")
+                    except ValueError as e:
+                        st.error(f"Value error: {e}")
 
-            labels = df["label"]
-            texts = df["text"]
+            display_eda(df['label'], df['text'])
 
-            st.subheader("Распределение меток")
-            label_counts = labels.value_counts()
-            fig_label_dist = px.bar(
-                label_counts,
-                x=label_counts.index,
-                y=label_counts.values,
-                labels={"x": "Метка", "y": "Количество"},
-                title="Распределение меток",
-            )
-            st.plotly_chart(fig_label_dist)
 
-            st.subheader("Распределение длины текста")
-            text_lengths = texts.str.len()
-            length_df = pd.DataFrame({"length": text_lengths, "label": labels})
-            fig_text_len = px.histogram(
-                length_df,
-                x="length",
-                color="label",
-                nbins=50,
-                labels={"length": "Длина текста",
-                        "count": "Частота",
-                        "label": "Метка"},
-                title="Распределение длины текста с учетом метки",
-            )
-            st.plotly_chart(fig_text_len)
+def display_eda(labels, texts):
+    """Display EDA."""
 
-            st.subheader("Частотный анализ слов")
-            vectorizer = CountVectorizer(stop_words="english", max_features=50)
-            word_counts = vectorizer.fit_transform(texts).toarray().sum(axis=0)
-            words = vectorizer.get_feature_names_out()
+    st.subheader("Label Distribution")
+    label_counts = labels.value_counts()
+    fig_label_dist = px.bar(
+        label_counts,
+        x=label_counts.index,
+        y=label_counts.values,
+        labels={"x": "Label", "y": "Count"},
+        title="Label Distribution",
+    )
+    st.plotly_chart(fig_label_dist)
 
-            word_freq = pd.DataFrame({"word": words, "count": word_counts})
-            fig_word_freq = px.bar(
-                word_freq.sort_values("count", ascending=False),
-                x="word",
-                y="count",
-                labels={"word": "Слово", "count": "Частота"},
-                title="Частотный анализ слов",
-            )
-            st.plotly_chart(fig_word_freq)
+    st.subheader("Text Length Distribution")
+    text_lengths = texts.str.len()
+    length_df = pd.DataFrame({"length": text_lengths, "label": labels})
+    fig_text_len = px.histogram(
+        length_df,
+        x="length",
+        color="label",
+        nbins=50,
+        labels={"length": "Text Length", "count": "Frequency", "label": "Label"},
+        title="Text Length Distribution by Label",
+    )
+    st.plotly_chart(fig_text_len)
+
+    st.subheader("Word Frequency Analysis")
+    vectorizer = CountVectorizer(stop_words="english", max_features=50)
+    word_counts = vectorizer.fit_transform(texts).toarray().sum(axis=0)
+    words = vectorizer.get_feature_names_out()
+
+    word_freq = pd.DataFrame({"word": words, "count": word_counts})
+    fig_word_freq = px.bar(
+        word_freq.sort_values("count", ascending=False),
+        x="word",
+        y="count",
+        labels={"word": "Word", "count": "Frequency"},
+        title="Word Frequency Analysis",
+    )
+    st.plotly_chart(fig_word_freq)
 
 
 def model_hyperparameters(X, y):
+    """Define and save model hyperparameters."""
     with st.sidebar:
         st.header("Model Hyperparameters")
         C = st.slider(
@@ -161,16 +165,16 @@ def model_hyperparameters(X, y):
                                        min_value=0, value=0, step=1)
         verbose = st.selectbox("Verbose", options=[0, 1, 2], index=0)
 
-        model_type = st.selectbox("Model type",
+        model_type = st.selectbox("Model Type",
                                   options=["logistic", "svm"], index=0)
 
-        st.header("Vectorization parameters")
-        vec_type = st.selectbox("Vectorization type",
+        st.header("Vectorization Parameters")
+        vec_type = st.selectbox("Vectorization Type",
                                 options=["bow", "tfidf"], index=0)
         max_features = st.number_input("Max Features",
                                        min_value=1, value=1, step=1)
 
-        if st.button("Save configuration"):
+        if st.button("Save Configuration"):
             st.session_state.config = {
                 "X": X,
                 "config": {
@@ -189,35 +193,37 @@ def model_hyperparameters(X, y):
                 },
                 "y": y,
             }
-            st.success("Конфигурация сохранена!")
+            st.success("Configuration saved!")
 
         return st.session_state.get("config", None)
 
 
-def file_markdown():
+def display_file_requirements():
+    """Display required columns for the input file."""
     required_columns = pd.DataFrame(
         {
             "Column Name": ["text", "label"],
             "Description": [
-                "Текст для проверки",
-                "Категория текста",
+                "Text for analysis",
+                "Text category",
             ],
         }
     )
-    st.markdown("### Обязательные столбцы CSV файла:")
+    st.markdown("### Required Columns in the CSV File:")
     st.table(required_columns)
 
     st.markdown(
         """
-    - **Дополнительные столбцы** могут
-     быть добавлены произвольно,
-      например: `model`, `prompt` и т.д.
+    - **Additional columns** can
+     be added arbitrarily, e.g., `model`, `prompt`, etc.
     """
     )
 
 
 def validate_csv(file):
+    """Validate the uploaded CSV or JSONL file."""
     try:
+        df = pd.DataFrame()
         if file.name.endswith(".csv"):
             df = pd.read_csv(file)
         elif file.name.endswith(".jsonl"):
@@ -225,25 +231,25 @@ def validate_csv(file):
         required = {"text", "label"}
         if not required.issubset(df.columns):
             missing = required - set(df.columns)
-            st.error(f"Ошибка: Отсутствуют обязательные столбцы:"
-                     f" {', '.join(missing)}")
+            st.error(f"Error: Missing required columns: {', '.join(missing)}")
             return None
-        st.success("Файл успешно загружен!")
-        st.write("Предпросмотр данных:", df.head())
+        st.success("File successfully loaded!")
+        st.write("Data Preview:", df.head())
         return df
-    except Exception as e:
-        st.error(f"Не удалось загрузить файл: {e}")
+    except FileNotFoundError as e:
+        st.error(f"File not found: {e}")
         return None
 
 
 def tokenize_and_clean_text(text):
+    """Tokenize and clean text by removing stop words and punctuation."""
     tokens = tokenize.word_tokenize(text)
     stop_words = set(stopwords.words("english"))
     punct_chars = (
         string.punctuation
         + r"'s"
         + r"'t"
-        + r"\n't"
+        + r"n't"
         + r"'ll"
         + r"'re"
         + '""'
@@ -260,6 +266,7 @@ def tokenize_and_clean_text(text):
 
 
 def lemmatize(tokens):
+    """Lemmatize tokens."""
     lemmatizer = nltk.stem.WordNetLemmatizer()
     return [lemmatizer.lemmatize(token) for token in tokens]
 
