@@ -78,7 +78,7 @@ async def get_list_of_models():
             async with session.get(url) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    return list(resp[0]['models'][0]['models'])
+                    return resp[0]["models"][0]["models"]
                 return {
                         "error": f"Ошибка: {response.status}, {await response.text()}"
                     }
