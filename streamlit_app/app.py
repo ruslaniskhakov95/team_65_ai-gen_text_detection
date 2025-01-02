@@ -1,9 +1,8 @@
 import asyncio
-import sys
 from pathlib import Path
-
-import streamlit as st
 from PIL import Image
+import sys
+import streamlit as st
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
