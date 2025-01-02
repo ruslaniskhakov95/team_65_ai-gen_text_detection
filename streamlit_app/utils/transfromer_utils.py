@@ -12,7 +12,6 @@ label_map = {
 }
 
 API_URL = 'https://5bfc-83-237-24-130.ngrok-free.app'
-
 async def load_model(payload):
     """
         Load a model using the provided payload.
@@ -148,8 +147,6 @@ async def predict_probability(payload):
             async with session.post(url, json=payload) as response:
                 if response.status == 200:
                     resp = await response.json()
-                    print('========')
-                    print(resp)
                     return resp
                 return {
                         "error": f"Ошибка: {response.status}, {await response.text()}"
