@@ -1,7 +1,7 @@
 import json
-import os
 import aiohttp
 from dotenv import load_dotenv
+import os
 
 predict_response = {
     0: "chatGPT",
@@ -11,8 +11,8 @@ predict_response = {
 load_dotenv()
 
 
-# API_URL = os.getenv("API_URL")
-API_URL = "http://127.0.0.1:8000"
+API_URL = os.getenv("API_URL")
+
 
 async def get_list_of_models():
     """

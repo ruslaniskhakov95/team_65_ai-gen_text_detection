@@ -2,6 +2,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import APIRouter, HTTPException
 import numpy as np
+import os
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import learning_curve
@@ -22,14 +23,17 @@ active_model = 'default'
 router = APIRouter(prefix='/api/v1/model')
 executor = ThreadPoolExecutor(max_workers=1)
 
+current_dir = os.path.dirname(__file__)
 logger = logger_setup(
-    name='basic_logger', log_file='logs_basic/log.log'
-)
+    name='basic_logger',
+    log_file=os.path.join(current_dir, './logs_basic/log.log')
+    )
 
 
 @router.post("/fit_corpus", response_model=FitResponse)
 async def fit_new_model(request: FitRequest):
     '''Train new model'''
+
     global models
     config = request.config
     model_type = config.model_type.value
@@ -39,7 +43,9 @@ async def fit_new_model(request: FitRequest):
     vec_params = config.vec_params.dict()
     X = request.X
     y = np.array(request.y)
-    logger.info(f"Trying to fit model of type {model_type} and vectorizer {vec_type}")
+    logger.info(
+        f"Trying to fit model of type {model_type} and vectorizer {vec_type}"
+    )
 
     if model_type == 'logistic':
         model = LogisticRegression(**params)
@@ -90,6 +96,8 @@ async def fit_new_model(request: FitRequest):
 
 @router.post("/load", response_model=ApiResponse)
 async def load_model(request: LoadRequest):
+    '''Loads model'''
+
     global active_model
     global models
     model_id = request.id
@@ -111,15 +119,20 @@ async def load_model(request: LoadRequest):
 
 @router.post("/unload", response_model=ApiResponse)
 async def unload_model():
+    '''Unloads model from inference'''
+
     global active_model
     global models
-    logger.info(f"Trying to unload the current active model")
+    logger.info("Trying to unload the current active model")
     if not active_model:
-        logger.error("There is no active model! Here is the traceback: %s", traceback.format_exc())
+        logger.error(
+            "There is no active model! Here is the traceback: %s",
+            traceback.format_exc()
+        )
         raise HTTPException(
             status_code=404, detail="There's no active loaded model"
         )
-    logger.info(f"Successfully unloaded the active model")
+    logger.info("Successfully unloaded the active model")
     temp = active_model
     active_model = None
     return ApiResponse(message=f'Model {temp} unloaded!')
@@ -127,6 +140,8 @@ async def unload_model():
 
 @router.get("/list", response_model=list[ModelListResponse])
 async def list_models():
+    '''List all available models'''
+
     logger.info('A request to list all of the models on the disk')
     return [
         ModelListResponse(
@@ -138,9 +153,13 @@ async def list_models():
 @router.post("/predict_text", response_model=PredictResponse)
 async def predict_model(request: PredictRequest):
     '''Prediction on a single text'''
+
     logger.info("Trying to make a prediction with the current active model.")
     if not active_model:
-        logger.error("There is no active model! Here is the traceback: %s", traceback.format_exc())
+        logger.error(
+            "There is no active model! Here is the traceback: %s",
+            traceback.format_exc()
+        )
         raise HTTPException(
             status_code=404, detail='No active model, choose one!'
         )
@@ -159,9 +178,15 @@ async def predict_model(request: PredictRequest):
 @router.post("/predict_corpus", response_model=PredictResponse)
 async def predict_model_corpus(request: PredictMultipleRequest):
     '''Prediction on a text corpus'''
-    logger.info("Trying to make a corpus prediction with the current active model.")
+
+    logger.info(
+        "Trying to make a corpus prediction with the current active model."
+    )
     if not active_model:
-        logger.error("There is no active model! Here is the traceback: %s", traceback.format_exc())
+        logger.error(
+            "There is no active model! Here is the traceback: %s",
+            traceback.format_exc()
+        )
         raise HTTPException(
             status_code=404, detail='No active model, choose one!'
         )

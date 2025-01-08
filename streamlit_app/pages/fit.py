@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from streamlit_app.utils.utils import fit_model
 from pages import logger
 
+
 @st.cache_resource
 def download_nltk_resources():
     """Download necessary NLTK resources."""
@@ -53,9 +54,13 @@ async def process_page():
             if st.button("Train Model"):
                 if config:
                     st.write("Training the model...")
-                    logger.info('Trying to train model with id:%s', config['config']['id'])
+                    logger.info(
+                        'Trying to train model with id:%s',
+                        config['config']['id']
+                    )
                     try:
                         _, result = await fit_model(config)
+                        print(result)
                         st.success(result["message"])
                         train_sizes = result["train_sizes"]
                         train_scores_mean = result["train_scores_mean"]
@@ -100,7 +105,10 @@ async def process_page():
                         st.plotly_chart(fig)
 
                     except ValueError as e:
-                        logger.error('Unable to train the model. Here is the trace: %s', traceback.format_exc())
+                        logger.error(
+                            'Unable to train the model. Here is the trace: %s',
+                            traceback.format_exc()
+                        )
                         st.error(f"Value error: {e}")
 
             display_eda(df['label'], df['text'])
@@ -128,7 +136,9 @@ def display_eda(labels, texts):
         x="length",
         color="label",
         nbins=50,
-        labels={"length": "Text Length", "count": "Frequency", "label": "Label"},
+        labels={
+            "length": "Text Length", "count": "Frequency", "label": "Label"
+        },
         title="Text Length Distribution by Label",
     )
     st.plotly_chart(fig_text_len)
@@ -233,14 +243,19 @@ def validate_csv(file):
         required = {"text", "label"}
         if not required.issubset(df.columns):
             missing = required - set(df.columns)
-            logger.error(f"The file is missing required columns{', '.join(missing)}")
+            logger.error(
+                f"The file is missing required columns{', '.join(missing)}"
+            )
             st.error(f"Error: Missing required columns: {', '.join(missing)}")
             return None
         st.success("File successfully loaded!")
         st.write("Data Preview:", df.head())
         return df
     except FileNotFoundError as e:
-        logger.error("Unable to locate the file! Here is the trace: %s", traceback.format_exc())
+        logger.error(
+            "Unable to locate the file! Here is the trace: %s",
+            traceback.format_exc()
+        )
         st.error(f"File not found: {e}")
         return None
 
