@@ -8,12 +8,14 @@ from streamlit_app.utils.transfromer_utils import (
     load_model,
     unload_model
 )
-from  pages import logger
+from pages import logger
+
 
 async def process_page():
     """
     Main function to handle model inference operations.
-    This function provides a user interface to load and unload transformer models for inference using Streamlit.
+    This function provides a user interface to load and unload
+    transformer models for inference using Streamlit.
     """
     logger.info('Loading the transformer inference page')
     st.header("Load Transformer Model for Inference")

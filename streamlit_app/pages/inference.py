@@ -6,11 +6,13 @@ from streamlit_app.utils.utils import (get_list_of_models, load_model,
                                        unload_model)
 from pages import logger
 
+
 async def process_page():
     """
     Main function to handle model inference operations.
 
-    This function provides a user interface to load and unload models for inference using Streamlit.
+    This function provides a user interface to load and unload models
+    for inference using Streamlit.
     """
     logger.info('Processing the inference  page')
     st.header("Load Model for Inference")
@@ -23,7 +25,9 @@ async def process_page():
         logger.info('Loading model with id %s', selected_load_model)
         if st.button(f"Load Model: {selected_load_model}"):
             await load_model(selected_load_model)
-            st.success(f"Model '{selected_load_model}' has been successfully loaded.")
+            st.success(
+                f"Model '{selected_load_model}' has been successfully loaded."
+            )
 
     st.header("Unload Models from Inference")
 
