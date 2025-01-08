@@ -131,7 +131,7 @@ Ensure the `.env` file is placed in the root directory of the project before run
 ## Screenshots
 ### Start page
 
-https://github.com/user-attachments/assets/08a1b5ca-e8e3-4b1b-8a11-e5e69a649675
+<img width="1393" alt="Снимок экрана 2025-01-08 в 14 58 17" src="https://github.com/user-attachments/assets/50588815-5da5-451e-bca3-9978f6033503" />
 
 ### Fitting model
 
@@ -160,8 +160,5 @@ https://github.com/user-attachments/assets/08a1b5ca-e8e3-4b1b-8a11-e5e69a649675
 ### Corpus text prediction (via file upload)
 
 <img width="1393" alt="Снимок экрана 2025-01-08 в 15 10 08" src="https://github.com/user-attachments/assets/d21e44ae-f7f7-46a8-b7de-9f60db538fcf" />
-
-
-
 
 
