@@ -3,28 +3,78 @@ This app is created to analyze the texts and to show the probability that it was
 
 ## App installation (locally)
 Install and activate your virtual environment:
-```
+
+```bash
+# Clone the repository
+git clone git@github.com:ruslaniskhakov95/team_65_ai-gen_text_detection.git
+cd team_65_ai-gen_text_detection
+
+# Install and activate a virtual environment
 pip install -m venv venv
 source venv/bin/activate
-```
 
-Install dependencies:
-```
+# Install dependencies
 pip install -r requirements.txt
+
+# Start the API server locally
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+
+# Run the Streamlit frontend in another terminal
+streamlit run streamlit_app/app.py --server.port=8501
 ```
 
-## App deploy on remote server
+## App deploy locally using docker compose
 Use docker-compose.yml
-
-
-## Get transformer weights
+```bash
+# Clone the repository
+git clone git@github.com:ruslaniskhakov95/team_65_ai-gen_text_detection.git
+cd team_65_ai-gen_text_detection
 ```
-git lfs install
-git clone https://huggingface.co/spaces/raj-tomar001/LLM-DetectAIve
+Run docker compose file with --build flag
+
+```bash
+docker compose up --build
 ```
-Make sure that the path to model weights is correct in api/.env
+Streamlit server will be present on: http://0.0.0.0:8501.
+
+## Remote app deploy
+
+Change docker-compose.yml in order to get images from docker hub instead of bouilding them:
+```yaml
+version: '3.9'
+
+services:
+  api:
+    image: ruslaniskhakov/api:latest
+    container_name: api_container
+    env_file:
+      - .development.env
+    ports:
+      - 8000:8000
+  
+  streamlit:
+    image: ruslaniskhakov/streamlit:latest
+    container_name: streamlit_container
+    env_file:
+      - .development.env
+    ports:
+      - 8501:8501
+    environment:
+      - API_URL=http://api_container:8000
+    depends_on:
+      - api
+```
+Copy this file on remote server: you can create empty file and copy-paste contents from your locally modified file using nano or vim.
+
+```bash
+docker compose up
+```
+
 ## Stack
-- Python 3.11
+- **Backend**: Python 3.11, FastAPI  
+- **Frontend**: Streamlit  
+- **Machine Learning**: scikit-learn, transformers (pre-trained weights)  
+- **Containerization**: Docker, Docker Compose  
 
 ## Team
 - Artem Borisov
