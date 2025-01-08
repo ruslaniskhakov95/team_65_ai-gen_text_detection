@@ -1,13 +1,17 @@
 import asyncio
 import pandas as pd
 import streamlit as st
-from streamlit_app.utils.utils import predict_corpus, predict_response, predict_text
+from streamlit_app.utils.utils import (
+    predict_corpus, predict_response, predict_text
+)
 from pages import logger
+
 
 async def process_page():
     """
-    Main function to render the Streamlit page and handle text prediction tasks.
-    - Includes single-text prediction and batch text prediction on uploaded files.
+    Main function to render the Streamlit page and handle text prediction.
+    Includes single-text prediction and batch text prediction on uploaded
+    files.
     """
     logger.info('Loading the predict page')
     st.header("Text Prediction")

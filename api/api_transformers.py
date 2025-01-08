@@ -15,6 +15,8 @@ from transformers import (
 from collections import defaultdict
 from dotenv import load_dotenv
 
+# from api_route import models
+
 load_dotenv()
 
 
@@ -32,9 +34,11 @@ models: dict = defaultdict(str)
 
 router = APIRouter(prefix='/api/v1/model/transformers')
 
+current_dir = os.path.dirname(__file__)
 logger = logger_setup(
-    name='transformers_logger', log_file='logs_transformers/log.log'
-)
+    name='transformers_logger',
+    log_file=os.path.join(current_dir, './logs_transformers/log.log')
+    )
 
 TEXT_CLASS_MAPPING = {
     'LABEL_2': 'Machine-Generated',
@@ -60,7 +64,7 @@ TEXT_CLASS_MAPPING = {
 async def load(request: LoadRequest):
     logger.info(f"Trying to load model with ID {request.id}")
     try:
-        models[request.id] = pipeline(
+        models[request.id] = [pipeline(
             'text-classification',
             model=AutoModelForSequenceClassification.from_pretrained(
                 model_path_map[request.id]
@@ -71,7 +75,7 @@ async def load(request: LoadRequest):
             truncation=True,
             max_length=512,
             top_k=4
-        )
+        ), 'auto', request.id]
         logger.info(f"Deleted model with ID {request.id}")
     except KeyError:
         logger.error(
