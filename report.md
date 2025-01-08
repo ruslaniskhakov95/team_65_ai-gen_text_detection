@@ -127,3 +127,38 @@ Ensure the `.env` file is placed in the root directory of the project before run
 2. **Train Models**: Configure training parameters and initiate training from the `Fit` page.
 3. **Inference**: Load trained models for inference using the `Inference` or `Transformer Inference` pages.
 4. **Make Predictions**: Use the `Predict` or `Transformer Predict` pages to input data and obtain predictions.
+
+## Screenshots
+### Start page
+
+<img width="1393" alt="Снимок экрана 2025-01-08 в 14 58 17" src="https://github.com/user-attachments/assets/50588815-5da5-451e-bca3-9978f6033503" />
+
+### Fitting model
+
+<img width="1399" alt="Снимок экрана 2025-01-08 в 15 01 15" src="https://github.com/user-attachments/assets/737bea56-8ff1-41e4-ad56-33c98a6d5090" />
+
+### Descriptive stats
+
+<img width="1321" alt="Снимок экрана 2025-01-08 в 15 02 32" src="https://github.com/user-attachments/assets/752ff388-7af4-4707-b6c3-99c90893d146" />
+
+<img width="1393" alt="Снимок экрана 2025-01-08 в 15 03 24" src="https://github.com/user-attachments/assets/cabdbf3c-6d75-437b-a6a1-004aefbba25a" />
+
+<img width="1399" alt="Снимок экрана 2025-01-08 в 15 04 26" src="https://github.com/user-attachments/assets/2f0b85a7-4741-41e0-b06d-9ba87c9bea25" />
+
+### Model fitted + learning curves
+
+<img width="1354" alt="Снимок экрана 2025-01-08 в 15 06 13" src="https://github.com/user-attachments/assets/24ae5e65-8594-4e13-9407-18c9861c6a72" />
+
+### Model loaded for inference
+
+<img width="1398" alt="Снимок экрана 2025-01-08 в 15 07 00" src="https://github.com/user-attachments/assets/eb5c2191-99e1-408b-9b70-52ef18757991" />
+
+### Random text prediction
+
+<img width="1393" alt="Снимок экрана 2025-01-08 в 15 08 57" src="https://github.com/user-attachments/assets/cce0566c-bb8f-4191-868b-e405b5dd459c" />
+
+### Corpus text prediction (via file upload)
+
+<img width="1393" alt="Снимок экрана 2025-01-08 в 15 10 08" src="https://github.com/user-attachments/assets/d21e44ae-f7f7-46a8-b7de-9f60db538fcf" />
+
+

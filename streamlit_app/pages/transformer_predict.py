@@ -2,7 +2,9 @@ import asyncio
 
 import streamlit as st
 
-from streamlit_app.utils.transfromer_utils import predict, predict_probability, get_list_of_loaded_models
+from streamlit_app.utils.transfromer_utils import (
+    predict, predict_probability, get_list_of_loaded_models
+)
 from pages import logger
 import pandas as pd
 
@@ -44,11 +46,15 @@ async def process_page():
             ['Yes', 'No']
         )
 
-        if st.button("Predict on Batch of Texts") and return_probability == 'No':
+        if st.button(
+            "Predict on Batch of Texts"
+        ) and return_probability == 'No':
             resp = await predict({"X": texts, "model_type": selected_model})
             st.success(list(resp['predictions']))
         else:
-            resp = await predict_probability({"X": texts, "model_type": selected_model})
+            resp = await predict_probability({
+                "X": texts, "model_type": selected_model
+            })
             st.success(list(resp['predictions'])[0])
 
 
