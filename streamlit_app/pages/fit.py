@@ -3,15 +3,17 @@ import string
 import traceback
 
 import nltk
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from nltk import tokenize
 from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import CountVectorizer
-from streamlit_app.utils.utils import fit_model
 from pages import logger
+from sklearn.feature_extraction.text import CountVectorizer
+
+from streamlit_app.utils.utils import fit_model
 
 
 @st.cache_resource
@@ -27,15 +29,16 @@ download_nltk_resources()
 
 
 async def process_page():
-    logger.info('Processing the Fit Page')
-    """Main function for processing the page."""
+    logger.info("Processing the Fit Page")
+    """
+    Main function for processing the page.
+    """
     st.header("Model Training")
 
     display_file_requirements()
 
     uploaded_file = st.file_uploader(
-        "Upload a file for training (CSV, json):",
-        type=["csv", "jsonl", "json"]
+        "Upload a file for training (CSV, json):", type=["csv", "jsonl", "json"]
     )
     if uploaded_file:
         df = validate_csv(uploaded_file)
@@ -55,18 +58,17 @@ async def process_page():
                 if config:
                     st.write("Training the model...")
                     logger.info(
-                        'Trying to train model with id:%s',
-                        config['config']['id']
+                        "Trying to train model with id:%s", config["config"]["id"]
                     )
                     try:
                         _, result = await fit_model(config)
                         print(result)
                         st.success(result["message"])
                         train_sizes = result["train_sizes"]
-                        train_scores_mean = result["train_scores_mean"]
-                        train_scores_std = result["train_scores_std"]
-                        test_scores_mean = result["test_scores_mean"]
-                        test_scores_std = result["test_scores_std"]
+                        train_scores_mean = np.array(result["train_scores_mean"])
+                        train_scores_std = np.array(result["train_scores_std"])
+                        test_scores_mean = np.array(result["test_scores_mean"])
+                        test_scores_std = np.array(result["test_scores_std"])
 
                         fig = go.Figure()
                         fig.add_trace(
@@ -74,12 +76,28 @@ async def process_page():
                                 x=train_sizes,
                                 y=train_scores_mean,
                                 mode="lines+markers",
-                                name="Training Accuracy (Mean)",
-                                line={"color": 'blue'},
+                                name="Training F1-score (Mean)",
+                                line={"color": "blue"},
                                 error_y={
                                     "type": "data",
-                                    "array": train_scores_std, "visible": True
+                                    "array": train_scores_std,
+                                    "visible": True,
                                 },
+                            )
+                        )
+                        fig.add_trace(
+                            go.Scatter(
+                                x=np.concatenate([train_sizes, train_sizes[::-1]]),
+                                y=np.concatenate(
+                                    [
+                                        train_scores_mean - train_scores_std,
+                                        (train_scores_mean + train_scores_std)[::-1],
+                                    ]
+                                ),
+                                fill="toself",
+                                fillcolor="rgba(0, 0, 255, 0.2)",
+                                line=dict(color="rgba(255, 255, 255, 0)"),
+                                name="Training Score ± 1 Std Dev",
                             )
                         )
                         fig.add_trace(
@@ -87,31 +105,47 @@ async def process_page():
                                 x=train_sizes,
                                 y=test_scores_mean,
                                 mode="lines+markers",
-                                name="Test Accuracy (Mean)",
-                                line={"color": 'green'},
+                                name="Validation F1-score (Mean)",
+                                line={"color": "green"},
                                 error_y={
                                     "type": "data",
-                                    "array": test_scores_std, "visible": True
+                                    "array": test_scores_std,
+                                    "visible": True,
                                 },
+                            )
+                        )
+                        fig.add_trace(
+                            go.Scatter(
+                                x=np.concatenate([train_sizes, train_sizes[::-1]]),
+                                y=np.concatenate(
+                                    [
+                                        test_scores_mean - test_scores_std,
+                                        (test_scores_mean + test_scores_std)[::-1],
+                                    ]
+                                ),
+                                fill="toself",
+                                fillcolor="rgba(255, 0, 0, 0.2)",
+                                line=dict(color="rgba(255, 255, 255, 0)"),
+                                name="Cross-Validation Score ± 1 Std Dev",
                             )
                         )
                         fig.update_layout(
                             title="Learning Curves",
                             xaxis_title="Training Set Size",
                             yaxis_title="Accuracy",
-                            xaxis={"tickmode": "linear"},
+                            xaxis={"tickvals": train_sizes / train_sizes[-1]},
                             yaxis={"range": [0, 1]},
                         )
                         st.plotly_chart(fig)
 
                     except ValueError as e:
                         logger.error(
-                            'Unable to train the model. Here is the trace: %s',
-                            traceback.format_exc()
+                            "Unable to train the model. Here is the trace: %s",
+                            traceback.format_exc(),
                         )
                         st.error(f"Value error: {e}")
 
-            display_eda(df['label'], df['text'])
+            display_eda(df["label"], df["text"])
 
 
 def display_eda(labels, texts):
@@ -136,9 +170,7 @@ def display_eda(labels, texts):
         x="length",
         color="label",
         nbins=50,
-        labels={
-            "length": "Text Length", "count": "Frequency", "label": "Label"
-        },
+        labels={"length": "Text Length", "count": "Frequency", "label": "Label"},
         title="Text Length Distribution by Label",
     )
     st.plotly_chart(fig_text_len)
@@ -172,18 +204,15 @@ def model_hyperparameters(X, y):
             step=0.01,
         )
         fit_intercept = st.checkbox("Fit Intercept", value=False)
-        random_state = st.number_input("Random State",
-                                       min_value=0, value=0, step=1)
+        random_state = 42
+
         verbose = st.selectbox("Verbose", options=[0, 1, 2], index=0)
 
-        model_type = st.selectbox("Model Type",
-                                  options=["logistic", "svm"], index=0)
+        model_type = st.selectbox("Model Type", options=["logistic", "svm"], index=0)
 
         st.header("Vectorization Parameters")
-        vec_type = st.selectbox("Vectorization Type",
-                                options=["bow", "tfidf"], index=0)
-        max_features = st.number_input("Max Features",
-                                       min_value=1, value=1, step=1)
+        vec_type = st.selectbox("Vectorization Type", options=["bow", "tfidf"], index=0)
+        max_features = st.number_input("Max Features", min_value=1, value=1, step=1)
 
         if st.button("Save Configuration"):
             st.session_state.config = {
@@ -243,9 +272,7 @@ def validate_csv(file):
         required = {"text", "label"}
         if not required.issubset(df.columns):
             missing = required - set(df.columns)
-            logger.error(
-                f"The file is missing required columns{', '.join(missing)}"
-            )
+            logger.error(f"The file is missing required columns{', '.join(missing)}")
             st.error(f"Error: Missing required columns: {', '.join(missing)}")
             return None
         st.success("File successfully loaded!")
@@ -253,8 +280,7 @@ def validate_csv(file):
         return df
     except FileNotFoundError as e:
         logger.error(
-            "Unable to locate the file! Here is the trace: %s",
-            traceback.format_exc()
+            "Unable to locate the file! Here is the trace: %s", traceback.format_exc()
         )
         st.error(f"File not found: {e}")
         return None

@@ -1,12 +1,12 @@
 import asyncio
 
-import streamlit as st
-
-from streamlit_app.utils.transfromer_utils import (
-    predict, predict_probability, get_list_of_loaded_models
-)
-from pages import logger
 import pandas as pd
+import streamlit as st
+from pages import logger
+
+from streamlit_app.utils.transfromer_utils import (get_list_of_loaded_models,
+                                                   predict,
+                                                   predict_probability)
 
 
 async def process_page():
@@ -20,7 +20,7 @@ async def process_page():
     - Performs batch predictions asynchronously and displays the results.
     """
     st.header("Batch Text Prediction")
-    logger.info('Loading the transformer predict page')
+    logger.info("Loading the transformer predict page")
     st.markdown(
         """
         - The file must contain a column named `text`.
@@ -31,31 +31,25 @@ async def process_page():
         "Upload a file for prediction (.csv)", type=["csv"]
     )
     if uploaded_file:
-        logger.info('Making a transformer prediction')
+        logger.info("Making a transformer prediction")
         texts = pd.read_csv(uploaded_file)["text"].tolist()
         st.write("Texts for prediction:")
         st.write(texts[:2])
 
         selected_model = st.selectbox(
-            "Select model type for prediction",
-            await get_list_of_loaded_models()
+            "Select model type for prediction", await get_list_of_loaded_models()
         )
 
         return_probability = st.selectbox(
-            "Do you want to return probabilities?",
-            ['Yes', 'No']
+            "Do you want to return probabilities?", ["Yes", "No"]
         )
 
-        if st.button(
-            "Predict on Batch of Texts"
-        ) and return_probability == 'No':
+        if st.button("Predict on Batch of Texts") and return_probability == "No":
             resp = await predict({"X": texts, "model_type": selected_model})
-            st.success(list(resp['predictions']))
+            st.success(list(resp["predictions"]))
         else:
-            resp = await predict_probability({
-                "X": texts, "model_type": selected_model
-            })
-            st.success(list(resp['predictions'])[0])
+            resp = await predict_probability({"X": texts, "model_type": selected_model})
+            st.success(list(resp["predictions"])[0])
 
 
 if __name__ == "__main__":

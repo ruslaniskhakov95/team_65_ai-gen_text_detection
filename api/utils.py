@@ -46,7 +46,7 @@ class VectorizerType(Enum):
 class HyperParams(BaseModel):
     C: float = 1.0
     fit_intercept: bool = False
-    random_state: int = None
+    # random_state: int = None
     verbose: int = 0
 
 
@@ -55,6 +55,11 @@ class VecParams(BaseModel):
 
 
 class LoadRequest(BaseModel):
+
+    id: str
+
+
+class ModelInfoRequest(BaseModel):
 
     id: str
 

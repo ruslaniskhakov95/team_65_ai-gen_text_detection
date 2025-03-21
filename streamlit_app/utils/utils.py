@@ -1,7 +1,9 @@
 import json
+import os
+from typing import Any
+
 import aiohttp
 from dotenv import load_dotenv
-import os
 
 predict_response = {
     0: "chatGPT",
@@ -14,7 +16,7 @@ load_dotenv()
 API_URL = os.getenv("API_URL")
 
 
-async def get_list_of_models():
+async def get_list_of_models() -> dict:
     """
     Fetch the list of available models from the API.
 
@@ -28,14 +30,37 @@ async def get_list_of_models():
                 if response.status == 200:
                     return await response.json()
                 return {
-                    "error": f"Error: {response.status}, "
-                             f"{await response.text()}"
+                    "error": f"Error: {response.status}, " f"{await response.text()}"
                 }
         except aiohttp.ClientError as e:
             return {"error": f"HTTP error: {str(e)}"}
 
 
-async def fit_model(payload):
+async def get_model_info(payload: dict) -> tuple[int, dict[str, str]]:
+    """
+    Get information about a specific model.
+
+    Args:
+        payload (str): The data used to get information about the model.
+
+    Returns:
+        dict: A dictionary with the model info or an error message.
+    """
+    async with aiohttp.ClientSession() as session:
+        url = API_URL + "/api/v1/model/get_hyperparameters"
+        try:
+            async with session.post(url, json=payload) as response:
+                resp = await response.json()
+                if response.status == 200:
+                    return response.status, resp
+                return response.status, {"error": f"Error: {response.status}, {resp}"}
+        except aiohttp.ClientError as e:
+            return 500, {"error": f"HTTP error: {str(e)}"}
+        except json.JSONDecodeError as e:
+            return 500, {"error": f"JSON decode error: {str(e)}"}
+
+
+async def fit_model(payload: dict) -> tuple[int, dict[str, str]]:
     """
     Fit a model using the provided corpus data.
 
@@ -52,16 +77,14 @@ async def fit_model(payload):
                 resp = await response.json()
                 if response.status == 200:
                     return response.status, resp
-                return response.status, {
-                    "error": f"Error: {response.status}, {resp}"
-                }
+                return response.status, {"error": f"Error: {response.status}, {resp}"}
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
         except json.JSONDecodeError as e:
             return 500, {"error": f"JSON decode error: {str(e)}"}
 
 
-async def load_model(payload):
+async def load_model(payload: dict) -> tuple[int, dict[str, str]]:
     """
     Load a model using the provided payload.
 
@@ -78,16 +101,14 @@ async def load_model(payload):
                 resp = await response.json()
                 if response.status == 200:
                     return response.status, resp
-                return response.status, {
-                    "error": f"Error: {response.status}, {resp}"
-                }
+                return response.status, {"error": f"Error: {response.status}, {resp}"}
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
         except json.JSONDecodeError as e:
             return 500, {"error": f"JSON decode error: {str(e)}"}
 
 
-async def unload_model():
+async def unload_model() -> tuple[int, dict[str, str]]:
     """
     Unload the model from the API.
 
@@ -101,16 +122,14 @@ async def unload_model():
                 resp = await response.json()
                 if response.status == 200:
                     return response.status, resp
-                return response.status, {
-                    "error": f"Error: {response.status}, {resp}"
-                }
+                return response.status, {"error": f"Error: {response.status}, {resp}"}
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
         except json.JSONDecodeError as e:
             return 500, {"error": f"JSON decode error: {str(e)}"}
 
 
-async def predict_text(payload):
+async def predict_text(payload: dict) -> tuple[int, dict[str, str]]:
     """
     Predict text using the model.
 
@@ -127,16 +146,14 @@ async def predict_text(payload):
                 resp = await response.json()
                 if response.status == 200:
                     return response.status, resp
-                return response.status, {
-                    "error": f"Error: {response.status}, {resp}"
-                }
+                return response.status, {"error": f"Error: {response.status}, {resp}"}
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
         except json.JSONDecodeError as e:
             return 500, {"error": f"JSON decode error: {str(e)}"}
 
 
-async def predict_corpus(payload):
+async def predict_corpus(payload: dict) -> tuple[int, dict[str, str]]:
     """
     Predict using a corpus of data.
 
@@ -153,9 +170,7 @@ async def predict_corpus(payload):
                 resp = await response.json()
                 if response.status == 200:
                     return response.status, resp
-                return response.status, {
-                    "error": f"Error: {response.status}, {resp}"
-                }
+                return response.status, {"error": f"Error: {response.status}, {resp}"}
         except aiohttp.ClientError as e:
             return 500, {"error": f"HTTP error: {str(e)}"}
         except json.JSONDecodeError as e:

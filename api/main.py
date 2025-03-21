@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     with open(model_filename, "rb") as model_file:
         tfidf_model = pickle.load(model_file)
 
-    models["default"] = [tfidf_vec, tfidf_model, "logistic"]
+    models["default"] = [tfidf_vec, "tfidf", tfidf_model, "logistic"]
 
     yield
 

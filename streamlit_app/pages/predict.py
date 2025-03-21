@@ -1,10 +1,11 @@
 import asyncio
+
 import pandas as pd
 import streamlit as st
-from streamlit_app.utils.utils import (
-    predict_corpus, predict_response, predict_text
-)
 from pages import logger
+
+from streamlit_app.utils.utils import (predict_corpus, predict_response,
+                                       predict_text)
 
 
 async def process_page():
@@ -13,7 +14,7 @@ async def process_page():
     Includes single-text prediction and batch text prediction on uploaded
     files.
     """
-    logger.info('Loading the predict page')
+    logger.info("Loading the predict page")
     st.header("Text Prediction")
 
     text_input = st.text_area("Enter text for prediction", height=200)
@@ -64,9 +65,7 @@ async def process_page():
                 for k, v in predict_response.items():
                     pred_data[i].update({v: resp[1]["probability"][i][k]})
 
-            prediction_df = pd.DataFrame(
-                pred_data, index=list(range(len(texts)))
-            )
+            prediction_df = pd.DataFrame(pred_data, index=list(range(len(texts))))
 
             st.write(prediction_df)
 

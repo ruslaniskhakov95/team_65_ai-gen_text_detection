@@ -1,16 +1,17 @@
 import asyncio
-from pathlib import Path
-from PIL import Image
 import sys
+from pathlib import Path
+
 import streamlit as st
+from PIL import Image
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 
 async def show_main_page():
-    '''
+    """
     Show the main page of the app.
-    '''
+    """
     image = Image.open("streamlit_app/image/i_am_robot.jpeg")
     st.set_page_config(
         layout="wide",

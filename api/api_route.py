@@ -11,8 +11,9 @@ from sklearn.model_selection import learning_curve
 from sklearn.svm import SVC
 from util_transformers import HTTPValidationError, logger_setup
 from utils import (ApiResponse, FitRequest, FitResponse, LoadRequest,
-                   ModelListResponse, PredictMultipleRequest, PredictRequest,
-                   PredictResponse, lemmatize, tokenize_and_clean_text)
+                   ModelConfig, ModelInfoRequest, ModelListResponse,
+                   PredictMultipleRequest, PredictRequest, PredictResponse,
+                   lemmatize, tokenize_and_clean_text)
 
 models = {}
 active_model = "default"
@@ -50,6 +51,7 @@ async def fit_new_model(request: FitRequest):
     vec_params = config.vec_params.dict()
     X = request.X
     y = np.array(request.y)
+    np.random.shuffle(y)
     logger.info(f"Trying to fit model of type {model_type} and vectorizer {vec_type}")
 
     if model_type == "logistic":
@@ -68,9 +70,9 @@ async def fit_new_model(request: FitRequest):
         X_vec,
         y,
         n_jobs=-1,
-        train_sizes=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        train_sizes=[0.2, 0.4, 0.6, 0.8, 1],
+        scoring="f1_weighted",
     )
-
     mean_train_scores = train_scores.mean(axis=1)
     mean_test_scores = test_scores.mean(axis=1)
     std_train_scores = train_scores.std(axis=1)
@@ -78,7 +80,7 @@ async def fit_new_model(request: FitRequest):
 
     def train() -> None:
         model.fit(X_vec, y)
-        models[model_id] = [vec, model, model_type]
+        models[model_id] = [vec, vec_type, model, model_type]
 
     try:
         future = executor.submit(train)
@@ -101,6 +103,45 @@ async def fit_new_model(request: FitRequest):
         train_scores_std=std_train_scores.tolist(),
         test_scores_std=std_test_scores.tolist(),
     )
+
+
+@router.post(
+    "/get_hyperparameters",
+    tags=["get_hyperparameters"],
+    summary="Get hyperparameters",
+    description="Get hyperparameters of fitting models",
+    responses={
+        422: {"model": HTTPValidationError, "description": "Validation Error"},
+        200: {"model": ModelConfig, "description": "Successful Response"},
+    },
+    status_code=HTTPStatus.OK,
+)
+async def get_hyperparameters(request: ModelInfoRequest):
+    """Get model hyperparameters"""
+
+    global models
+
+    model_id = request.id
+    logger.info("Trying to get info of model with id: %s", model_id)
+    if models.get(model_id):
+        logger.info("Getting info of model with id: %s", model_id)
+        model_info = models.get(model_id)
+
+        return ModelConfig(
+            id=model_id,
+            vec_params=model_info[0].get_params(),
+            vec_type=model_info[1],
+            hyperparams=model_info[2].get_params(),
+            model_type=model_info[3],
+        )
+    else:
+        logger.error(
+            "Tried to load a model that does not exist: %s, \
+            Here is the trace: %s",
+            model_id,
+            traceback.format_exc(),
+        )
+        raise HTTPException(status_code=404, detail="Requested model doesn't exist")
 
 
 @router.post(
@@ -176,7 +217,7 @@ async def list_models():
     """List all available models"""
 
     logger.info("A request to list all of the models on the disk")
-    return [ModelListResponse(id=key, type=value[2]) for key, value in models.items()]
+    return [ModelListResponse(id=key, type=value[3]) for key, value in models.items()]
 
 
 @router.post(
